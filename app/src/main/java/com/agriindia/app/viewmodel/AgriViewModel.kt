@@ -1,18 +1,23 @@
 package com.agriindia.app.viewmodel
 
 import android.app.Activity
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.agriindia.app.model.*
 import com.agriindia.app.repository.AgriRepository
 import com.agriindia.app.repository.PaymentRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class AgriViewModel(
-    private val repository: AgriRepository = AgriRepository(),
-    private val paymentRepository: PaymentRepository = PaymentRepository()
-) : ViewModel() {
+    application: Application
+) : AndroidViewModel(application) {
+
+    private val repository: AgriRepository = AgriRepository()
+    private val paymentRepository: PaymentRepository = PaymentRepository(application)
 
     private val _language = MutableStateFlow(AppLanguage.ENGLISH)
     val language: StateFlow<AppLanguage> = _language.asStateFlow()
@@ -168,6 +173,12 @@ class AgriViewModel(
         _showCheckout.value = show
     }
 
+    fun loadOrderHistory(userId: String) {
+        viewModelScope.launch {
+            _orderHistory.value = paymentRepository.getOrdersByUser(userId)
+        }
+    }
+
     fun initiatePayment(activity: Activity, user: User?) {
         val total = calculateCartTotal()
         paymentRepository.initiatePayment(
@@ -179,19 +190,21 @@ class AgriViewModel(
     }
 
     fun onPaymentSuccess(paymentId: String, userId: String) {
-        val total = calculateCartTotal()
-        val order = paymentRepository.createOrder(
-            items = _cartItems.value,
-            totalAmount = total,
-            paymentId = paymentId,
-            userId = userId
-        )
-        _orderHistory.value = listOf(order) + _orderHistory.value
-        _paymentResult.value = PaymentResult.Success(paymentId, order.orderId)
-        _cartItems.value = emptyList()
-        _appliedCoupon.value = null
-        _showCheckout.value = false
-        _showOrderConfirmation.value = true
+        viewModelScope.launch {
+            val total = calculateCartTotal()
+            val order = paymentRepository.createOrder(
+                items = _cartItems.value,
+                totalAmount = total,
+                paymentId = paymentId,
+                userId = userId
+            )
+            _orderHistory.value = listOf(order) + _orderHistory.value
+            _paymentResult.value = PaymentResult.Success(paymentId, order.orderId)
+            _cartItems.value = emptyList()
+            _appliedCoupon.value = null
+            _showCheckout.value = false
+            _showOrderConfirmation.value = true
+        }
     }
 
     fun onPaymentError(code: Int, message: String) {

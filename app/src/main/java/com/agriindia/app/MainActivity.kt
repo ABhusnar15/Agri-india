@@ -187,6 +187,10 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
         NavItem(if (isHi) "ज्ञान" else "Gyan", Icons.Default.MenuBook)
     )
 
+    LaunchedEffect(currentUser) {
+        currentUser?.let { viewModel.loadOrderHistory(it.uid) }
+    }
+
     // Profile screen overlay
     if (showProfile) {
         ProfileScreen(

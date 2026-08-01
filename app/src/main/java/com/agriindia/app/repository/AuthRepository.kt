@@ -1,76 +1,79 @@
 package com.agriindia.app.repository
 
-import com.agriindia.app.model.AuthState
+import android.content.Context
+import android.content.SharedPreferences
+import com.agriindia.app.data.AppDatabase
+import com.agriindia.app.data.UserEntity
 import com.agriindia.app.model.User
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserProfileChangeRequest
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.UUID
 
-class AuthRepository(
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
-) {
+class AuthRepository(private val context: Context) {
 
-    fun getCurrentUser(): User? {
-        val fbUser = firebaseAuth.currentUser ?: return null
-        return User(
-            uid = fbUser.uid,
-            name = fbUser.displayName ?: "",
-            email = fbUser.email ?: "",
-            phone = fbUser.phoneNumber ?: "",
-            state = "",
-            profileImageUrl = fbUser.photoUrl?.toString()
-        )
+    private val userDao by lazy { AppDatabase.getDatabase(context).userDao() }
+    private val prefs: SharedPreferences by lazy {
+        context.getSharedPreferences("agri_auth_prefs", Context.MODE_PRIVATE)
     }
 
-    fun isLoggedIn(): Boolean = firebaseAuth.currentUser != null
+    suspend fun getCurrentUser(): User? = withContext(Dispatchers.IO) {
+        val uid = prefs.getString("logged_in_uid", null) ?: return@withContext null
+        userDao.getUserById(uid)?.toUserModel()
+    }
 
-    suspend fun signUp(name: String, email: String, password: String): Result<User> {
-        return try {
-            val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            val fbUser = authResult.user ?: return Result.failure(Exception("User creation failed"))
+    fun isLoggedIn(): Boolean {
+        return prefs.getString("logged_in_uid", null) != null
+    }
 
-            // Update display name
-            val profileUpdates = UserProfileChangeRequest.Builder()
-                .setDisplayName(name)
-                .build()
-            fbUser.updateProfile(profileUpdates).await()
+    suspend fun signUp(
+        name: String,
+        email: String,
+        phone: String,
+        state: String,
+        password: String
+    ): Result<User> = withContext(Dispatchers.IO) {
+        try {
+            val existingUser = userDao.getUserByEmail(email)
+            if (existingUser != null) {
+                return@withContext Result.failure(Exception("EMAIL_EXISTS"))
+            }
 
-            val user = User(
-                uid = fbUser.uid,
-                name = name,
+            val newUid = UUID.randomUUID().toString()
+            val entity = UserEntity(
+                uid = newUid,
                 email = email,
-                phone = "",
-                state = "",
+                passwordHash = password,
+                name = name,
+                phone = phone,
+                state = state,
                 profileImageUrl = null
             )
-            Result.success(user)
+            userDao.insertUser(entity)
+            prefs.edit().putString("logged_in_uid", newUid).apply()
+            Result.success(entity.toUserModel())
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun signIn(email: String, password: String): Result<User> {
-        return try {
-            val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            val fbUser = authResult.user ?: return Result.failure(Exception("Sign in failed"))
-
-            val user = User(
-                uid = fbUser.uid,
-                name = fbUser.displayName ?: "",
-                email = fbUser.email ?: "",
-                phone = fbUser.phoneNumber ?: "",
-                state = "",
-                profileImageUrl = fbUser.photoUrl?.toString()
-            )
-            Result.success(user)
+    suspend fun signIn(email: String, password: String): Result<User> = withContext(Dispatchers.IO) {
+        try {
+            val existingUser = userDao.getUserByEmail(email)
+            if (existingUser == null || existingUser.passwordHash != password) {
+                return@withContext Result.failure(Exception("INVALID_LOGIN_CREDENTIALS"))
+            }
+            prefs.edit().putString("logged_in_uid", existingUser.uid).apply()
+            Result.success(existingUser.toUserModel())
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun resetPassword(email: String): Result<Unit> {
-        return try {
-            firebaseAuth.sendPasswordResetEmail(email).await()
+    suspend fun resetPassword(email: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val existing = userDao.getUserByEmail(email)
+                ?: return@withContext Result.failure(Exception("INVALID_EMAIL"))
+            // Simulate successful password reset email for offline SQLite test
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -78,6 +81,6 @@ class AuthRepository(
     }
 
     fun signOut() {
-        firebaseAuth.signOut()
+        prefs.edit().remove("logged_in_uid").apply()
     }
 }

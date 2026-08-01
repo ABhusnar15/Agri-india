@@ -1,15 +1,21 @@
 package com.agriindia.app.repository
 
 import android.app.Activity
+import android.content.Context
+import com.agriindia.app.data.AppDatabase
+import com.agriindia.app.data.OrderEntity
 import com.agriindia.app.model.CartItem
 import com.agriindia.app.model.Order
 import com.agriindia.app.model.User
 import com.razorpay.Checkout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class PaymentRepository {
+class PaymentRepository(private val context: Context? = null) {
+
+    private val orderDao by lazy { context?.let { AppDatabase.getDatabase(it).orderDao() } }
 
     companion object {
-        // TODO: Replace with your actual Razorpay test/live key
         const val RAZORPAY_KEY = "rzp_test_XXXXXXXXX"
     }
 
@@ -51,13 +57,13 @@ class PaymentRepository {
         }
     }
 
-    fun createOrder(
+    suspend fun createOrder(
         items: List<CartItem>,
         totalAmount: Double,
         paymentId: String,
         userId: String
-    ): Order {
-        return Order(
+    ): Order = withContext(Dispatchers.IO) {
+        val order = Order(
             orderId = "ORD-${System.currentTimeMillis()}",
             userId = userId,
             items = items.map { "${it.product.name} x${it.quantity}" },
@@ -66,5 +72,11 @@ class PaymentRepository {
             paymentStatus = "Paid",
             timestamp = System.currentTimeMillis()
         )
+        orderDao?.insertOrder(OrderEntity.fromOrderModel(order))
+        order
+    }
+
+    suspend fun getOrdersByUser(userId: String): List<Order> = withContext(Dispatchers.IO) {
+        orderDao?.getOrdersByUser(userId)?.map { it.toOrderModel() } ?: emptyList()
     }
 }

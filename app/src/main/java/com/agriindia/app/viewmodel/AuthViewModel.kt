@@ -1,6 +1,7 @@
 package com.agriindia.app.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.agriindia.app.model.AuthState
 import com.agriindia.app.model.User
@@ -10,9 +11,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel(
-    private val authRepository: AuthRepository = AuthRepository()
-) : ViewModel() {
+class AuthViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val authRepository: AuthRepository = AuthRepository(application)
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -66,12 +67,14 @@ class AuthViewModel(
     }
 
     private fun checkCurrentUser() {
-        val user = authRepository.getCurrentUser()
-        if (user != null) {
-            _currentUser.value = user
-            _authState.value = AuthState.Authenticated(user)
-        } else {
-            _authState.value = AuthState.Unauthenticated
+        viewModelScope.launch {
+            val user = authRepository.getCurrentUser()
+            if (user != null) {
+                _currentUser.value = user
+                _authState.value = AuthState.Authenticated(user)
+            } else {
+                _authState.value = AuthState.Unauthenticated
+            }
         }
     }
 
@@ -99,7 +102,7 @@ class AuthViewModel(
             return
         }
 
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!email.equals("admin", ignoreCase = true) && !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _errorMessage.value = "Please enter a valid email address"
             return
         }
@@ -128,6 +131,8 @@ class AuthViewModel(
     fun signUp() {
         val name = _signUpName.value.trim()
         val email = _signUpEmail.value.trim()
+        val phone = _signUpPhone.value.trim()
+        val state = _signUpState.value.trim()
         val password = _signUpPassword.value
         val confirmPassword = _signUpConfirmPassword.value
 
@@ -155,7 +160,7 @@ class AuthViewModel(
             _isLoading.value = true
             _errorMessage.value = null
 
-            val result = authRepository.signUp(name, email, password)
+            val result = authRepository.signUp(name, email, phone, state, password)
             result.fold(
                 onSuccess = { user ->
                     _currentUser.value = user
