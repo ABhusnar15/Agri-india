@@ -1,14 +1,17 @@
 package com.agriindia.app.viewmodel
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import com.agriindia.app.model.*
 import com.agriindia.app.repository.AgriRepository
+import com.agriindia.app.repository.PaymentRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class AgriViewModel(
-    private val repository: AgriRepository = AgriRepository()
+    private val repository: AgriRepository = AgriRepository(),
+    private val paymentRepository: PaymentRepository = PaymentRepository()
 ) : ViewModel() {
 
     private val _language = MutableStateFlow(AppLanguage.ENGLISH)
@@ -60,6 +63,19 @@ class AgriViewModel(
 
     private val _showSellProduceDialog = MutableStateFlow(false)
     val showSellProduceDialog: StateFlow<Boolean> = _showSellProduceDialog.asStateFlow()
+
+    // Checkout & Orders State
+    private val _showCheckout = MutableStateFlow(false)
+    val showCheckout: StateFlow<Boolean> = _showCheckout.asStateFlow()
+
+    private val _orderHistory = MutableStateFlow<List<Order>>(emptyList())
+    val orderHistory: StateFlow<List<Order>> = _orderHistory.asStateFlow()
+
+    private val _paymentResult = MutableStateFlow<PaymentResult?>(null)
+    val paymentResult: StateFlow<PaymentResult?> = _paymentResult.asStateFlow()
+
+    private val _showOrderConfirmation = MutableStateFlow(false)
+    val showOrderConfirmation: StateFlow<Boolean> = _showOrderConfirmation.asStateFlow()
 
     // Community State
     private val _communityPosts = MutableStateFlow(repository.getCommunityPosts())
@@ -146,6 +162,56 @@ class AgriViewModel(
 
     fun toggleSellProduceDialog(show: Boolean) {
         _showSellProduceDialog.value = show
+    }
+
+    fun toggleCheckout(show: Boolean) {
+        _showCheckout.value = show
+    }
+
+    fun initiatePayment(activity: Activity, user: User?) {
+        val total = calculateCartTotal()
+        paymentRepository.initiatePayment(
+            activity = activity,
+            amount = total,
+            orderId = "ORD-${System.currentTimeMillis()}",
+            user = user
+        )
+    }
+
+    fun onPaymentSuccess(paymentId: String, userId: String) {
+        val total = calculateCartTotal()
+        val order = paymentRepository.createOrder(
+            items = _cartItems.value,
+            totalAmount = total,
+            paymentId = paymentId,
+            userId = userId
+        )
+        _orderHistory.value = listOf(order) + _orderHistory.value
+        _paymentResult.value = PaymentResult.Success(paymentId, order.orderId)
+        _cartItems.value = emptyList()
+        _appliedCoupon.value = null
+        _showCheckout.value = false
+        _showOrderConfirmation.value = true
+    }
+
+    fun onPaymentError(code: Int, message: String) {
+        _paymentResult.value = PaymentResult.Failed(code, message)
+    }
+
+    fun onPaymentCancelled() {
+        _paymentResult.value = PaymentResult.Cancelled
+    }
+
+    fun dismissOrderConfirmation() {
+        _showOrderConfirmation.value = false
+        _paymentResult.value = null
+    }
+
+    private fun calculateCartTotal(): Double {
+        val subtotal = _cartItems.value.sumOf { it.product.price * it.quantity }
+        val discount = if (_appliedCoupon.value != null) subtotal * 0.1 else 0.0
+        val delivery = if (subtotal > 500) 0.0 else 49.0
+        return subtotal - discount + delivery
     }
 
     fun togglePostLike(postId: String) {

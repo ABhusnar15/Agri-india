@@ -2,10 +2,12 @@ package com.agriindia.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Agriculture
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -23,9 +25,11 @@ import com.agriindia.app.model.AppLanguage
 fun AgriTopAppBar(
     currentLanguage: AppLanguage,
     cartItemCount: Int,
+    userName: String?,
     onToggleLanguage: () -> Unit,
     onOpenCart: () -> Unit,
-    onOpenKisanMitra: () -> Unit
+    onOpenKisanMitra: () -> Unit,
+    onOpenProfile: () -> Unit
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -49,7 +53,11 @@ fun AgriTopAppBar(
                         color = Color.White
                     )
                     Text(
-                        text = if (currentLanguage == AppLanguage.HINDI) "भारतीय किसानों का साथी" else "One-Stop Farmers App",
+                        text = if (userName != null) {
+                            if (currentLanguage == AppLanguage.HINDI) "नमस्ते, $userName" else "Hello, $userName"
+                        } else {
+                            if (currentLanguage == AppLanguage.HINDI) "भारतीय किसानों का साथी" else "One-Stop Farmers App"
+                        },
                         fontSize = 11.sp,
                         color = Color(0xFFD1FAE5)
                     )
@@ -107,6 +115,33 @@ fun AgriTopAppBar(
                         contentDescription = "Shopping Cart",
                         tint = Color.White
                     )
+                }
+            }
+
+            // Profile button
+            IconButton(onClick = onOpenProfile) {
+                Surface(
+                    modifier = Modifier.size(30.dp),
+                    shape = CircleShape,
+                    color = Color(0xFF047857)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        if (userName != null) {
+                            Text(
+                                text = userName.take(1).uppercase(),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Profile",
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
                 }
             }
         }

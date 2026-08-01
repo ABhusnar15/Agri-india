@@ -5,45 +5,178 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agriindia.app.model.AppLanguage
+import com.agriindia.app.model.AuthState
+import com.agriindia.app.model.PaymentResult
 import com.agriindia.app.ui.components.AgriTopAppBar
 import com.agriindia.app.ui.components.KisanMitraDialog
 import com.agriindia.app.ui.components.YojnaCalculatorDialog
 import com.agriindia.app.ui.screens.*
 import com.agriindia.app.viewmodel.AgriViewModel
+import com.agriindia.app.viewmodel.AuthViewModel
+import com.razorpay.Checkout
+import com.razorpay.PaymentResultListener
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), PaymentResultListener {
 
     private val viewModel: AgriViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Pre-fetch Razorpay payment methods
+        Checkout.preload(applicationContext)
+
         setContent {
-            AgriIndiaAppContent(viewModel)
+            AgriIndiaApp(
+                viewModel = viewModel,
+                authViewModel = authViewModel
+            )
         }
+    }
+
+    // Razorpay payment callbacks
+    override fun onPaymentSuccess(paymentId: String?) {
+        val userId = authViewModel.currentUser.value?.uid ?: ""
+        viewModel.onPaymentSuccess(paymentId ?: "", userId)
+    }
+
+    override fun onPaymentError(code: Int, message: String?) {
+        viewModel.onPaymentError(code, message ?: "Payment failed")
+    }
+}
+
+@Composable
+fun AgriIndiaApp(
+    viewModel: AgriViewModel,
+    authViewModel: AuthViewModel
+) {
+    val authState by authViewModel.authState.collectAsState()
+
+    when (authState) {
+        is AuthState.Loading -> {
+            // Splash/Loading
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Color(0xFF059669))
+            }
+        }
+        is AuthState.Authenticated -> {
+            AgriIndiaAppContent(viewModel = viewModel, authViewModel = authViewModel)
+        }
+        is AuthState.Unauthenticated, is AuthState.Error -> {
+            AuthScreens(authViewModel = authViewModel)
+        }
+    }
+}
+
+@Composable
+fun AuthScreens(authViewModel: AuthViewModel) {
+    val showSignUp by authViewModel.showSignUp.collectAsState()
+    val isLoading by authViewModel.isLoading.collectAsState()
+    val errorMessage by authViewModel.errorMessage.collectAsState()
+    val resetPasswordSent by authViewModel.resetPasswordSent.collectAsState()
+
+    // Reset password dialog
+    if (resetPasswordSent) {
+        AlertDialog(
+            onDismissRequest = { authViewModel.dismissResetPasswordDialog() },
+            title = { Text("Password Reset Email Sent") },
+            text = { Text("Please check your email inbox for password reset instructions.") },
+            confirmButton = {
+                Button(
+                    onClick = { authViewModel.dismissResetPasswordDialog() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669))
+                ) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+
+    if (showSignUp) {
+        val name by authViewModel.signUpName.collectAsState()
+        val email by authViewModel.signUpEmail.collectAsState()
+        val phone by authViewModel.signUpPhone.collectAsState()
+        val password by authViewModel.signUpPassword.collectAsState()
+        val confirmPassword by authViewModel.signUpConfirmPassword.collectAsState()
+        val selectedState by authViewModel.signUpState.collectAsState()
+
+        SignUpScreen(
+            language = AppLanguage.ENGLISH,
+            name = name,
+            email = email,
+            phone = phone,
+            password = password,
+            confirmPassword = confirmPassword,
+            selectedState = selectedState,
+            isLoading = isLoading,
+            errorMessage = errorMessage,
+            onNameChange = { authViewModel.updateSignUpName(it) },
+            onEmailChange = { authViewModel.updateSignUpEmail(it) },
+            onPhoneChange = { authViewModel.updateSignUpPhone(it) },
+            onPasswordChange = { authViewModel.updateSignUpPassword(it) },
+            onConfirmPasswordChange = { authViewModel.updateSignUpConfirmPassword(it) },
+            onStateChange = { authViewModel.updateSignUpState(it) },
+            onSignUp = { authViewModel.signUp() },
+            onNavigateToLogin = { authViewModel.navigateToLogin() },
+            onClearError = { authViewModel.clearError() }
+        )
+    } else {
+        val email by authViewModel.loginEmail.collectAsState()
+        val password by authViewModel.loginPassword.collectAsState()
+
+        LoginScreen(
+            language = AppLanguage.ENGLISH,
+            email = email,
+            password = password,
+            isLoading = isLoading,
+            errorMessage = errorMessage,
+            onEmailChange = { authViewModel.updateLoginEmail(it) },
+            onPasswordChange = { authViewModel.updateLoginPassword(it) },
+            onLogin = { authViewModel.login() },
+            onNavigateToSignUp = { authViewModel.navigateToSignUp() },
+            onForgotPassword = { authViewModel.resetPassword() },
+            onClearError = { authViewModel.clearError() }
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AgriIndiaAppContent(viewModel: AgriViewModel) {
+fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) {
     val language by viewModel.language.collectAsState()
     val selectedTab by viewModel.selectedTab.collectAsState()
     val cartItems by viewModel.cartItems.collectAsState()
     val showKisanMitra by viewModel.showKisanMitra.collectAsState()
     val showYojnaCalc by viewModel.showYojnaCalculator.collectAsState()
     val showCartSheet by viewModel.showCartSheet.collectAsState()
+    val showCheckout by viewModel.showCheckout.collectAsState()
+    val showProfile by authViewModel.showProfile.collectAsState()
+    val showOrderConfirmation by viewModel.showOrderConfirmation.collectAsState()
+    val paymentResult by viewModel.paymentResult.collectAsState()
+    val currentUser by authViewModel.currentUser.collectAsState()
+    val orderHistory by viewModel.orderHistory.collectAsState()
+    val appliedCoupon by viewModel.appliedCoupon.collectAsState()
 
     val isHi = language == AppLanguage.HINDI
+    val context = LocalContext.current
 
     val navItems = listOf(
         NavItem(if (isHi) "मौसम" else "Weather", Icons.Default.WbSunny),
@@ -54,14 +187,92 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel) {
         NavItem(if (isHi) "ज्ञान" else "Gyan", Icons.Default.MenuBook)
     )
 
+    // Profile screen overlay
+    if (showProfile) {
+        ProfileScreen(
+            language = language,
+            user = currentUser,
+            orders = orderHistory,
+            onLogout = { authViewModel.logout() },
+            onDismiss = { authViewModel.toggleProfile(false) }
+        )
+        return
+    }
+
+    // Checkout screen overlay
+    if (showCheckout) {
+        CheckoutScreen(
+            language = language,
+            cartItems = cartItems,
+            appliedCoupon = appliedCoupon,
+            onUpdateQuantity = { productId, delta -> viewModel.updateCartQuantity(productId, delta) },
+            onApplyCoupon = { code -> viewModel.applyCoupon(code) },
+            onProceedPayment = {
+                val activity = context as? android.app.Activity
+                if (activity != null) {
+                    viewModel.initiatePayment(activity, currentUser)
+                }
+            },
+            onDismiss = { viewModel.toggleCheckout(false) }
+        )
+        return
+    }
+
+    // Order confirmation dialog
+    if (showOrderConfirmation) {
+        val result = paymentResult
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissOrderConfirmation() },
+            icon = {
+                Icon(
+                    imageVector = if (result is PaymentResult.Success) Icons.Default.CheckCircle else Icons.Default.Error,
+                    contentDescription = null,
+                    tint = if (result is PaymentResult.Success) Color(0xFF059669) else Color(0xFFDC2626),
+                    modifier = Modifier.size(48.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = when (result) {
+                        is PaymentResult.Success -> if (isHi) "ऑर्डर सफल!" else "Order Placed!"
+                        is PaymentResult.Failed -> if (isHi) "भुगतान विफल" else "Payment Failed"
+                        else -> if (isHi) "भुगतान रद्द" else "Payment Cancelled"
+                    },
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = when (result) {
+                        is PaymentResult.Success -> if (isHi) "आपका ऑर्डर सफलतापूर्वक दे दिया गया है।\nPayment ID: ${result.paymentId}" else "Your order has been placed successfully.\nPayment ID: ${result.paymentId}"
+                        is PaymentResult.Failed -> if (isHi) "भुगतान प्रक्रिया में त्रुटि: ${result.errorMessage}" else "Payment error: ${result.errorMessage}"
+                        else -> if (isHi) "भुगतान रद्द कर दिया गया।" else "Payment was cancelled."
+                    },
+                    fontSize = 13.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { viewModel.dismissOrderConfirmation() },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669)),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(if (isHi) "ठीक है" else "OK")
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             AgriTopAppBar(
                 currentLanguage = language,
                 cartItemCount = cartItems.sumOf { it.quantity },
+                userName = currentUser?.name?.split(" ")?.firstOrNull(),
                 onToggleLanguage = { viewModel.toggleLanguage() },
                 onOpenCart = { viewModel.toggleCartSheet(true) },
-                onOpenKisanMitra = { viewModel.toggleKisanMitra(true) }
+                onOpenKisanMitra = { viewModel.toggleKisanMitra(true) },
+                onOpenProfile = { authViewModel.toggleProfile(true) }
             )
         },
         bottomBar = {
@@ -188,7 +399,7 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = "Total: ₹${cartItems.sumOf { it.product.price * it.quantity }.toInt()}",
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            fontWeight = FontWeight.Bold,
                             fontSize = 15.sp,
                             color = Color(0xFF059669)
                         )
@@ -196,11 +407,27 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel) {
                 }
             },
             confirmButton = {
-                Button(
-                    onClick = { viewModel.toggleCartSheet(false) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669))
-                ) {
-                    Text(if (isHi) "ऑर्डर दें" else "Place Order")
+                if (cartItems.isNotEmpty()) {
+                    Button(
+                        onClick = {
+                            viewModel.toggleCartSheet(false)
+                            viewModel.toggleCheckout(true)
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Payment,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(if (isHi) "चेकआउट करें" else "Proceed to Checkout")
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.toggleCartSheet(false) }) {
+                    Text(if (isHi) "बंद करें" else "Close", color = Color(0xFF64748B))
                 }
             }
         )

@@ -111,3 +111,40 @@ data class Article(
 enum class AppLanguage {
     ENGLISH, HINDI
 }
+
+// ---- Authentication Models ----
+
+data class User(
+    val uid: String,
+    val name: String,
+    val email: String,
+    val phone: String,
+    val state: String,
+    val profileImageUrl: String? = null
+)
+
+sealed class AuthState {
+    data object Loading : AuthState()
+    data class Authenticated(val user: User) : AuthState()
+    data object Unauthenticated : AuthState()
+    data class Error(val message: String) : AuthState()
+}
+
+// ---- Payment Models ----
+
+sealed class PaymentResult {
+    data class Success(val paymentId: String, val orderId: String?) : PaymentResult()
+    data class Failed(val errorCode: Int, val errorMessage: String) : PaymentResult()
+    data object Cancelled : PaymentResult()
+}
+
+data class Order(
+    val orderId: String,
+    val userId: String,
+    val items: List<String>,
+    val totalAmount: Double,
+    val paymentId: String,
+    val paymentStatus: String, // "Paid", "Failed", "Pending"
+    val timestamp: Long
+)
+
