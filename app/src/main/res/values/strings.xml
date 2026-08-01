@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Agri India</string>
+    <string name="nav_weather">Weather</string>
+    <string name="nav_yojna">Yojnas</string>
+    <string name="nav_mandi">Mandi Rates</string>
+    <string name="nav_bazaar">Bazaar</string>
+    <string name="nav_community">Chopal</string>
+    <string name="nav_articles">Gyan</string>
+    <string name="kisan_mitra">Kisan Mitra AI</string>
+    <string name="check_eligibility">Check Yojna Eligibility</string>
+    <string name="cart">Cart</string>
+    <string name="search_placeholder">Search commodities, schemes, or products...</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_emerald">#059669</color>
+    <color name="primary_dark_emerald">#047857</color>
+    <color name="accent_amber">#D97706</color>
+    <color name="soil_brown">#92400E</color>
+    <color name="background_light">#F8FAFC</color>
+    <color name="surface_card">#FFFFFF</color>
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="green_chip">#DCFCE7</color>
+    <color name="amber_chip">#FEF3C7</color>
+    <color name="blue_chip">#E0F2FE</color>
+</resources>

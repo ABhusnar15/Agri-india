@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">एग्री इंडिया</string>
+    <string name="nav_weather">मौसम</string>
+    <string name="nav_yojna">योजनाएं</string>
+    <string name="nav_mandi">मंडी भाव</string>
+    <string name="nav_bazaar">कृषि बाज़ार</string>
+    <string name="nav_community">किसान चौपाल</string>
+    <string name="nav_articles">कृषि ज्ञान</string>
+    <string name="kisan_mitra">किसान मित्र एआई</string>
+    <string name="check_eligibility">योजना पात्रता जांचें</string>
+    <string name="cart">कार्ट</string>
+    <string name="search_placeholder">फसल, योजनाएं या उत्पाद खोजें...</string>
+</resources>
