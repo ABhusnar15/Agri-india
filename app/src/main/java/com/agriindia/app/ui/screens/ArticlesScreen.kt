@@ -30,6 +30,7 @@ fun ArticlesScreen(
     onToggleBookmark: (String) -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
 
     Column(
         modifier = Modifier
@@ -41,7 +42,11 @@ fun ArticlesScreen(
             Icon(imageVector = Icons.Default.MenuBook, contentDescription = null, tint = Color(0xFF059669), modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = if (isHi) "कृषि ज्ञान एवं तकनीकी लेख" else "Krishi Gyan & Technology Articles",
+                text = when (language) {
+                    AppLanguage.MARATHI -> "कृषी ज्ञानगंगा व तांत्रिक माहिती"
+                    AppLanguage.HINDI -> "कृषि ज्ञान एवं तकनीकी लेख"
+                    else -> "Krishi Gyan & Technology Articles"
+                },
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF0F172A)
@@ -57,7 +62,7 @@ fun ArticlesScreen(
             items(articles) { article ->
                 ArticleCard(
                     article = article,
-                    isHi = isHi,
+                    isHi = isHi || isMr,
                     onClick = { onSelectArticle(article) },
                     onToggleBookmark = { onToggleBookmark(article.id) }
                 )
@@ -68,7 +73,7 @@ fun ArticlesScreen(
     if (selectedArticle != null) {
         ArticleDetailDialog(
             article = selectedArticle,
-            isHi = isHi,
+            isHi = isHi || isMr,
             onDismiss = { onSelectArticle(null) }
         )
     }

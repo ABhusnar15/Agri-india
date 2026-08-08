@@ -36,6 +36,7 @@ fun MandiPricesScreen(
     onOpenTrend: (MandiPrice) -> Unit = {}
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
 
     val filteredPrices = mandiPrices.filter { item ->
         (searchQuery.isBlank() || item.commodity.contains(searchQuery, ignoreCase = true) || item.mandiName.contains(searchQuery, ignoreCase = true)) &&
@@ -52,7 +53,16 @@ fun MandiPricesScreen(
         OutlinedTextField(
             value = searchQuery,
             onValueChange = onSearchQueryChange,
-            placeholder = { Text(if (isHi) "फसल या मंडी का नाम खोजें..." else "Search crop or Mandi name...", fontSize = 13.sp) },
+            placeholder = {
+                Text(
+                    when (language) {
+                        AppLanguage.MARATHI -> "पीक किंवा बाजार समितीचे नाव शोधा..."
+                        AppLanguage.HINDI -> "फसल या मंडी का नाम खोजें..."
+                        else -> "Search crop or Mandi name..."
+                    },
+                    fontSize = 13.sp
+                )
+            },
             leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = Color(0xFF059669)) },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
@@ -69,11 +79,11 @@ fun MandiPricesScreen(
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState())
         ) {
-            listOf("All States", "Punjab", "Maharashtra", "Karnataka", "Gujarat", "Rajasthan").forEach { state ->
+            listOf("All States", "Maharashtra", "Punjab", "Karnataka", "Gujarat", "Rajasthan").forEach { state ->
                 FilterChip(
                     selected = selectedState == state,
                     onClick = { onSelectState(state) },
-                    label = { Text(state, fontSize = 11.sp) },
+                    label = { Text(if (state == "All States" && isMr) "सर्व राज्ये" else if (state == "All States" && isHi) "सभी राज्य" else state, fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Color(0xFF059669),
                         selectedLabelColor = Color.White
@@ -85,7 +95,11 @@ fun MandiPricesScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = if (isHi) "दैनिक मंडी भाव अपडेट्स (${filteredPrices.size})" else "Daily APMC Mandi Price Updates (${filteredPrices.size})",
+            text = when (language) {
+                AppLanguage.MARATHI -> "दैनिक कृषी उत्पन्न बाजार समिती भाव (${filteredPrices.size})"
+                AppLanguage.HINDI -> "दैनिक मंडी भाव अपडेट्स (${filteredPrices.size})"
+                else -> "Daily APMC Mandi Price Updates (${filteredPrices.size})"
+            },
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF0F172A)
@@ -98,7 +112,7 @@ fun MandiPricesScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             items(filteredPrices) { mandi ->
-                MandiPriceCard(mandi = mandi, isHi = isHi, onOpenTrend = { onOpenTrend(mandi) })
+                MandiPriceCard(mandi = mandi, isHi = isHi || isMr, onOpenTrend = { onOpenTrend(mandi) })
             }
         }
     }

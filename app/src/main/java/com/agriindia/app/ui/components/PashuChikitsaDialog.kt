@@ -28,17 +28,18 @@ fun PashuChikitsaDialog(
     onDismiss: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
 
-    var selectedAnimal by remember { mutableStateOf("Cow / गाय") }
-    var selectedSymptom by remember { mutableStateOf("Mastitis / थनैला रोग (Swollen Udder)") }
+    var selectedAnimal by remember { mutableStateOf("Cow / गाय / गाय") }
+    var selectedSymptom by remember { mutableStateOf("Mastitis / थनैला / स्तनदाह") }
     var diagnosedDisease by remember { mutableStateOf<LivestockDisease?>(null) }
 
     val diseases = listOf(
         LivestockDisease(
-            diseaseName = "Mastitis (थन का रोग / थनैला)",
-            diseaseNameHi = "थनैला रोग (स्तन शोथ)",
-            animalType = "Cow / Buffalo",
-            severity = "High (उच्च)",
+            diseaseName = "Mastitis (थन का रोग / थनैला / स्तनदाह)",
+            diseaseNameHi = "थनैला रोग (स्तन शोथ / स्तनदाह)",
+            animalType = "Cow / Buffalo / गाय / म्हैस",
+            severity = "High (उच्च / गंभीर)",
             symptoms = "Swollen, hard and hot udder; blood or clots in milk; drop in milk yield and high fever.",
             symptomsHi = "थन में सूजन, लाली व कड़ापन; दूध में रक्त या छिछड़े आना; दूध उत्पादन में भारी गिरावट।",
             treatment = "Clean udder with Potassium Permanganate (1:1000). Apply Mastilep herbal gel. Administer Intramammary Ceftiofur/Amoxicillin under vet guidance.",
@@ -46,8 +47,8 @@ fun PashuChikitsaDialog(
             vaccineDue = "N/A - Regular hygiene & teat dipping after milking."
         ),
         LivestockDisease(
-            diseaseName = "Foot & Mouth Disease / FMD (खुरपका-मुंहपका)",
-            diseaseNameHi = "खुरपका-मुंहपका रोग (एफएमडी)",
+            diseaseName = "Foot & Mouth Disease / FMD (खुरपका-मुंहपका / लाळ्या खुरकूत)",
+            diseaseNameHi = "खुरपका-मुंहपका रोग (लाळ्या खुरकूत)",
             animalType = "Cow / Buffalo / Goat",
             severity = "Critical (गंभीर)",
             symptoms = "High fever, excessive salivation, blisters on tongue, lips, and feet lesions causing severe lameness.",
@@ -58,9 +59,9 @@ fun PashuChikitsaDialog(
         ),
         LivestockDisease(
             diseaseName = "Lumpy Skin Disease / LSD (लम्पी त्वचा रोग)",
-            diseaseNameHi = "लम्पी त्वचा रोग",
+            diseaseNameHi = "लम्पी त्वचा रोग (LSD)",
             animalType = "Cow / Buffalo",
-            severity = "High (उच्च)",
+            severity = "High (उच्च / गंभीर)",
             symptoms = "Nodules (2-5 cm) all over body, swollen lymph nodes, watery eyes, nasal discharge, and drop in milk.",
             symptomsHi = "पूरे शरीर की त्वचा पर 2-5 सेमी की कठोर गांठें, आंखों व नाक से पानी, बुखार एवं कमजोरी।",
             treatment = "Isolate infected animal. Apply Neem oil + Camphor (कपूर) on nodules. Feed Turmeric (50g) + Jaggery + Black pepper balls daily.",
@@ -68,10 +69,10 @@ fun PashuChikitsaDialog(
             vaccineDue = "Goat Pox Vaccine (गोपॉक्स टीका): Annual single dose."
         ),
         LivestockDisease(
-            diseaseName = "Bloat / Tympany (अफरा / पेट फूलना)",
-            diseaseNameHi = "अफरा (गैस बनना / पेट फूलना)",
+            diseaseName = "Bloat / Tympany (अफरा / पोट फुगणे)",
+            diseaseNameHi = "अफरा (गैस बनना / पेट फूलना / पोट फुगणे)",
             animalType = "Cow / Buffalo / Goat",
-            severity = "Urgent (तत्काल)",
+            severity = "Urgent (तत्काल / तातडीने)",
             symptoms = "Distended left flank drum-tight, respiratory distress, restlessness, refusal to eat.",
             symptomsHi = "बाईं कोख का ढोल की तरह फूलना, सांस लेने में तकलीफ, बेचैनी और चारा न खाना।",
             treatment = "Drench with 500ml Mustard Oil + 50g Hing (Asafoetida) + 20g Turpentine oil. Use stomach tube or trocar cannula in extreme cases.",
@@ -106,13 +107,21 @@ fun PashuChikitsaDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = if (isHi) "पशु चिकित्सा एवं डेयरी मित्र" else "Pashu Chikitsa & Dairy Care",
+                            text = when (language) {
+                                AppLanguage.MARATHI -> "पशुवैद्यकीय व दुग्धसेवा मित्र"
+                                AppLanguage.HINDI -> "पशु चिकित्सा एवं डेयरी मित्र"
+                                else -> "Pashu Chikitsa & Dairy Care"
+                            },
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
                             color = Color(0xFF0F172A)
                         )
                         Text(
-                            text = if (isHi) "पशु रोग निदान, टीकाकरण व दुग्ध संवर्धन" else "Livestock Disease Diagnosis & Vaccine Tracker",
+                            text = when (language) {
+                                AppLanguage.MARATHI -> "पशु रोग निदान, लसीकरण व दुग्ध संवर्धन"
+                                AppLanguage.HINDI -> "पशु रोग निदान, टीकाकरण व दुग्ध संवर्धन"
+                                else -> "Livestock Disease Diagnosis & Vaccine Tracker"
+                            },
                             fontSize = 11.sp,
                             color = Color(0xFF64748B)
                         )

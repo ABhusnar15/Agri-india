@@ -186,6 +186,7 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
     val appliedCoupon by viewModel.appliedCoupon.collectAsState()
 
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
     val context = LocalContext.current
 
     val speechLauncher = rememberLauncherForActivityResult(
@@ -201,12 +202,54 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
     }
 
     val navItems = listOf(
-        NavItem(if (isHi) "मौसम" else "Weather", Icons.Default.WbSunny),
-        NavItem(if (isHi) "योजनाएं" else "Yojnas", Icons.Default.AccountBalance),
-        NavItem(if (isHi) "मंडी भाव" else "Mandi", Icons.Default.Storefront),
-        NavItem(if (isHi) "बाज़ार" else "Bazaar", Icons.Default.ShoppingCart),
-        NavItem(if (isHi) "चौपाल" else "Chopal", Icons.Default.Groups),
-        NavItem(if (isHi) "ज्ञान" else "Gyan", Icons.Default.MenuBook)
+        NavItem(
+            when (language) {
+                AppLanguage.MARATHI -> "हवामान"
+                AppLanguage.HINDI -> "मौसम"
+                else -> "Weather"
+            },
+            Icons.Default.WbSunny
+        ),
+        NavItem(
+            when (language) {
+                AppLanguage.MARATHI -> "योजना"
+                AppLanguage.HINDI -> "योजनाएं"
+                else -> "Yojnas"
+            },
+            Icons.Default.AccountBalance
+        ),
+        NavItem(
+            when (language) {
+                AppLanguage.MARATHI -> "बाजार भाव"
+                AppLanguage.HINDI -> "मंडी भाव"
+                else -> "Mandi"
+            },
+            Icons.Default.Storefront
+        ),
+        NavItem(
+            when (language) {
+                AppLanguage.MARATHI -> "कृषी बाजार"
+                AppLanguage.HINDI -> "बाज़ार"
+                else -> "Bazaar"
+            },
+            Icons.Default.ShoppingCart
+        ),
+        NavItem(
+            when (language) {
+                AppLanguage.MARATHI -> "चौपाल"
+                AppLanguage.HINDI -> "चौपाल"
+                else -> "Chopal"
+            },
+            Icons.Default.Groups
+        ),
+        NavItem(
+            when (language) {
+                AppLanguage.MARATHI -> "ज्ञानगंगा"
+                AppLanguage.HINDI -> "ज्ञान"
+                else -> "Gyan"
+            },
+            Icons.Default.MenuBook
+        )
     )
 
     LaunchedEffect(currentUser) {
@@ -260,9 +303,21 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
             title = {
                 Text(
                     text = when (result) {
-                        is PaymentResult.Success -> if (isHi) "ऑर्डर सफल!" else "Order Placed!"
-                        is PaymentResult.Failed -> if (isHi) "भुगतान विफल" else "Payment Failed"
-                        else -> if (isHi) "भुगतान रद्द" else "Payment Cancelled"
+                        is PaymentResult.Success -> when (language) {
+                            AppLanguage.MARATHI -> "ऑर्डर यशस्वी!"
+                            AppLanguage.HINDI -> "ऑर्डर सफल!"
+                            else -> "Order Placed!"
+                        }
+                        is PaymentResult.Failed -> when (language) {
+                            AppLanguage.MARATHI -> "पेमेंट अयशस्वी"
+                            AppLanguage.HINDI -> "भुगतान विफल"
+                            else -> "Payment Failed"
+                        }
+                        else -> when (language) {
+                            AppLanguage.MARATHI -> "पेमेंट रद्द केले"
+                            AppLanguage.HINDI -> "भुगतान रद्द"
+                            else -> "Payment Cancelled"
+                        }
                     },
                     fontWeight = FontWeight.Bold
                 )
@@ -270,9 +325,21 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
             text = {
                 Text(
                     text = when (result) {
-                        is PaymentResult.Success -> if (isHi) "आपका ऑर्डर सफलतापूर्वक दे दिया गया है।\nPayment ID: ${result.paymentId}" else "Your order has been placed successfully.\nPayment ID: ${result.paymentId}"
-                        is PaymentResult.Failed -> if (isHi) "भुगतान प्रक्रिया में त्रुटि: ${result.errorMessage}" else "Payment error: ${result.errorMessage}"
-                        else -> if (isHi) "भुगतान रद्द कर दिया गया।" else "Payment was cancelled."
+                        is PaymentResult.Success -> when (language) {
+                            AppLanguage.MARATHI -> "आपली ऑर्डर यशस्वीरित्या नोंदवली गेली आहे.\nPayment ID: ${result.paymentId}"
+                            AppLanguage.HINDI -> "आपका ऑर्डर सफलतापूर्वक दे दिया गया है।\nPayment ID: ${result.paymentId}"
+                            else -> "Your order has been placed successfully.\nPayment ID: ${result.paymentId}"
+                        }
+                        is PaymentResult.Failed -> when (language) {
+                            AppLanguage.MARATHI -> "पेमेंट करताना त्रुटी आली: ${result.errorMessage}"
+                            AppLanguage.HINDI -> "भुगतान प्रक्रिया में त्रुटि: ${result.errorMessage}"
+                            else -> "Payment error: ${result.errorMessage}"
+                        }
+                        else -> when (language) {
+                            AppLanguage.MARATHI -> "पेमेंट प्रक्रिया रद्द करण्यात आली."
+                            AppLanguage.HINDI -> "भुगतान रद्द कर दिया गया।"
+                            else -> "Payment was cancelled."
+                        }
                     },
                     fontSize = 13.sp
                 )
@@ -283,7 +350,13 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(if (isHi) "ठीक है" else "OK")
+                    Text(
+                        when (language) {
+                            AppLanguage.MARATHI -> "ठीक आहे"
+                            AppLanguage.HINDI -> "ठीक है"
+                            else -> "OK"
+                        }
+                    )
                 }
             }
         )

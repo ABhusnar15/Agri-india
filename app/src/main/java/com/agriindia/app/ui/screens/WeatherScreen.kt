@@ -36,6 +36,7 @@ fun WeatherScreen(
     onFetchGpsLocation: () -> Unit = {}
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
     var expandedDropdown by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -105,7 +106,7 @@ fun WeatherScreen(
                         )
                     )
                 },
-                label = { Text(if (isFetchingGps) "Locating..." else "Live GPS", fontSize = 10.sp) },
+                label = { Text(if (isFetchingGps) "Locating..." else if (isMr) "थेट GPS" else if (isHi) "लाइव GPS" else "Live GPS", fontSize = 10.sp) },
                 leadingIcon = {
                     if (isFetchingGps) {
                         CircularProgressIndicator(
@@ -184,13 +185,13 @@ fun WeatherScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = if (isHi) "कृषि सलाह" else "Agro Advisory",
+                                text = if (isMr) "शेतकरी हवामान सल्ला" else if (isHi) "कृषि सलाह" else "Agro Advisory",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFFFDE047)
                             )
                             Text(
-                                text = if (isHi) weatherData.advisoryHi else weatherData.advisory,
+                                text = if (isMr || isHi) weatherData.advisoryHi else weatherData.advisory,
                                 fontSize = 12.sp,
                                 color = Color.White
                             )
@@ -209,14 +210,14 @@ fun WeatherScreen(
         ) {
             WeatherMetricTile(
                 modifier = Modifier.weight(1f),
-                title = if (isHi) "आर्द्रता" else "Humidity",
+                title = if (isMr) "हवेतील आर्द्रता" else if (isHi) "आर्द्रता" else "Humidity",
                 value = "${weatherData.humidity}%",
                 icon = Icons.Default.WaterDrop,
                 tint = Color(0xFF0284C7)
             )
             WeatherMetricTile(
                 modifier = Modifier.weight(1f),
-                title = if (isHi) "वर्षा संभावना" else "Rain Risk",
+                title = if (isMr) "पावसाची शक्यता" else if (isHi) "वर्षा संभावना" else "Rain Risk",
                 value = "${weatherData.rainProbability}%",
                 icon = Icons.Default.Umbrella,
                 tint = Color(0xFF2563EB)
@@ -231,14 +232,14 @@ fun WeatherScreen(
         ) {
             WeatherMetricTile(
                 modifier = Modifier.weight(1f),
-                title = if (isHi) "मृदा नमी" else "Soil Moisture",
+                title = if (isMr) "मातीतील ओलावा" else if (isHi) "मृदा नमी" else "Soil Moisture",
                 value = "${weatherData.soilMoisture}%",
                 icon = Icons.Default.Grass,
                 tint = Color(0xFF059669)
             )
             WeatherMetricTile(
                 modifier = Modifier.weight(1f),
-                title = if (isHi) "हवा की गति" else "Wind Speed",
+                title = if (isMr) "वाऱ्याचा वेग" else if (isHi) "हवा की गति" else "Wind Speed",
                 value = "${weatherData.windSpeed} km/h",
                 icon = Icons.Default.Air,
                 tint = Color(0xFFD97706)
@@ -249,7 +250,7 @@ fun WeatherScreen(
 
         // 7-Day Forecast Section
         Text(
-            text = if (isHi) "7-दिवसीय मौसम पूर्वानुमान" else "7-Day Weather Forecast",
+            text = if (isMr) "७-दिवसीय हवामान अंदाज" else if (isHi) "7-दिवसीय मौसम पूर्वानुमान" else "7-Day Weather Forecast",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF0F172A)

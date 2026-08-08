@@ -26,6 +26,7 @@ fun SolarIrrigationDialog(
     onDismiss: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
 
     var selectedHp by remember { mutableDoubleStateOf(5.0) }
     var selectedPumpType by remember { mutableStateOf("Submersible DC") }
@@ -73,13 +74,21 @@ fun SolarIrrigationDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = if (isHi) "पीएम-कुसुम सोलर पंप योजना" else "PM-KUSUM Solar Pump Planner",
+                            text = when (language) {
+                                AppLanguage.MARATHI -> "पीएम-कुसुम सौर कृषी पंप"
+                                AppLanguage.HINDI -> "पीएम-कुसुम सोलर पंप योजना"
+                                else -> "PM-KUSUM Solar Pump Planner"
+                            },
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
                             color = Color(0xFF0F172A)
                         )
                         Text(
-                            text = if (isHi) "60% सरकारी सब्सिडी + 30% बैंक ऋण" else "60% Govt Subsidy & Diesel Replacement",
+                            text = when (language) {
+                                AppLanguage.MARATHI -> "६०% शासकीय अनुदान + ३०% बँक कर्ज"
+                                AppLanguage.HINDI -> "60% सरकारी सब्सिडी + 30% बैंक ऋण"
+                                else -> "60% Govt Subsidy & Diesel Replacement"
+                            },
                             fontSize = 11.sp,
                             color = Color(0xFF64748B)
                         )

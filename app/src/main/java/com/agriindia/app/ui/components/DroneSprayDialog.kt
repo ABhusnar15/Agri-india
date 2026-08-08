@@ -30,6 +30,7 @@ fun DroneSprayDialog(
     onDismiss: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
     val scope = rememberCoroutineScope()
 
     var selectedCrop by remember { mutableStateOf("Wheat") }
@@ -46,12 +47,12 @@ fun DroneSprayDialog(
     )
 
     val crops = listOf(
-        "Wheat" to "गेहूं",
-        "Paddy" to "धान",
-        "Cotton" to "कपास",
-        "Mustard" to "सरसों",
-        "Sugarcane" to "गन्ना",
-        "Soybean" to "सोयाबीन"
+        "Wheat" to if (isMr) "गहू" else "गेहूं",
+        "Paddy" to if (isMr) "भात" else "धान",
+        "Cotton" to if (isMr) "कापूस" else "कपास",
+        "Mustard" to if (isMr) "मोहरी" else "सरसों",
+        "Sugarcane" to if (isMr) "ऊस" else "गन्ना",
+        "Soybean" to if (isMr) "सोयाबीन" else "सोयाबीन"
     )
 
     val baseRate = 600.0 // Rs per acre
@@ -85,13 +86,21 @@ fun DroneSprayDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = if (isHi) "ड्रोन स्प्रे सेवा बुकिंग" else "Kisan Drone Spray Booking",
+                            text = when (language) {
+                                AppLanguage.MARATHI -> "ड्रोन फवारणी सेवा बुकिंग"
+                                AppLanguage.HINDI -> "ड्रोन स्प्रे सेवा बुकिंग"
+                                else -> "Kisan Drone Spray Booking"
+                            },
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
                             color = Color(0xFF0F172A)
                         )
                         Text(
-                            text = if (isHi) "50% सरकारी सब्सिडी सहित सटीक छिड़काव" else "Precision Foliar Spray with 50% Subsidy",
+                            text = when (language) {
+                                AppLanguage.MARATHI -> "५०% शासकीय अनुदानासह अचूक फवारणी"
+                                AppLanguage.HINDI -> "50% सरकारी सब्सिडी सहित सटीक छिड़काव"
+                                else -> "Precision Foliar Spray with 50% Subsidy"
+                            },
                             fontSize = 11.sp,
                             color = Color(0xFF64748B)
                         )

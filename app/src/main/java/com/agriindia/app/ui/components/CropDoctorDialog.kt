@@ -32,6 +32,7 @@ fun CropDoctorDialog(
     onDismiss: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
     var isScanning by remember { mutableStateOf(false) }
     var scanResult by remember { mutableStateOf<CropDiagnosis?>(null) }
     var selectedCrop by remember { mutableStateOf("Wheat") }
@@ -41,8 +42,8 @@ fun CropDoctorDialog(
         CropDiagnosis(
             diseaseName = "Yellow Rust (Puccinia striiformis)",
             diseaseNameHi = "पीला रतुआ (येलो रस्ट)",
-            crop = "Wheat / गेहूं",
-            severity = "High (उच्च)",
+            crop = "Wheat / गेहूं / गहू",
+            severity = "High (उच्च / गंभीर)",
             symptoms = "Yellow stripy pustules on leaves, stunted plant growth, reduced grain count.",
             symptomsHi = "पत्तियों पर पीले रंग की धारियां, पौधे का छोटा रहना, दानों में कमी।",
             organicRemedy = "Spray fermented buttermilk or sour curd solution (5%) mixed with neem oil (5 ml/L).",
@@ -85,12 +86,20 @@ fun CropDoctorDialog(
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
                     Text(
-                        text = if (isHi) "एआई फसल डॉक्टर" else "AI Crop Doctor",
+                        text = when (language) {
+                            AppLanguage.MARATHI -> "पीक डॉक्टर व रोग निदान"
+                            AppLanguage.HINDI -> "एआई फसल डॉक्टर"
+                            else -> "AI Crop Doctor"
+                        },
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
                     Text(
-                        text = if (isHi) "पत्ती स्कैन और बीमारी निदान" else "Leaf Scan & Disease Diagnosis",
+                        text = when (language) {
+                            AppLanguage.MARATHI -> "पानांचे स्कॅनिंग व कीड-रोग उपचार"
+                            AppLanguage.HINDI -> "पत्ती स्कैन और बीमारी निदान"
+                            else -> "Leaf Scan & Disease Diagnosis"
+                        },
                         fontSize = 11.sp,
                         color = Color(0xFF64748B)
                     )

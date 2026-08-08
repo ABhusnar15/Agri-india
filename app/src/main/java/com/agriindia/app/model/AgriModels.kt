@@ -109,7 +109,7 @@ data class Article(
 )
 
 enum class AppLanguage {
-    ENGLISH, HINDI
+    ENGLISH, HINDI, MARATHI
 }
 
 // ---- Authentication Models ----

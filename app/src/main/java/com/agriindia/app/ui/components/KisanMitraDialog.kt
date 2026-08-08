@@ -28,10 +28,11 @@ fun KisanMitraDialog(
     var chatMessages by remember {
         mutableStateOf(
             listOf(
-                if (language == AppLanguage.HINDI)
-                    "नमस्ते किसान भाई! मैं आपका एआई किसान मित्र हूँ। फसल सुरक्षा, मंडी भाव या सरकारी योजनाओं के बारे में कुछ भी पूछें।"
-                else
-                    "Namaste Kisanji! I am your AI Kisan Mitra. Ask me anything about crop protection, Mandi prices, or government schemes."
+                when (language) {
+                    AppLanguage.MARATHI -> "नमस्कार शेतकरी बंधू! मी आपला AI शेतकरी मित्र आहे. पीक संरक्षण, बाजार भाव किंवा सरकारी योजनांविषयी काहीही विचारा."
+                    AppLanguage.HINDI -> "नमस्ते किसान भाई! मैं आपका एआई किसान मित्र हूँ। फसल सुरक्षा, मंडी भाव या सरकारी योजनाओं के बारे में कुछ भी पूछें।"
+                    else -> "Namaste Kisanji! I am your AI Kisan Mitra. Ask me anything about crop protection, Mandi prices, or government schemes."
+                }
             )
         )
     }
@@ -53,7 +54,11 @@ fun KisanMitraDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (language == AppLanguage.HINDI) "किसान मित्र AI सहायक" else "Kisan Mitra AI Helper",
+                        text = when (language) {
+                            AppLanguage.MARATHI -> "शेतकरी मित्र AI सहाय्यक"
+                            AppLanguage.HINDI -> "किसान मित्र AI सहायक"
+                            else -> "Kisan Mitra AI Helper"
+                        },
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
@@ -103,7 +108,11 @@ fun KisanMitraDialog(
                         onValueChange = { queryText = it },
                         placeholder = {
                             Text(
-                                if (language == AppLanguage.HINDI) "अपना प्रश्न पूछें..." else "Ask your question...",
+                                when (language) {
+                                    AppLanguage.MARATHI -> "आपला प्रश्न येथे विचारा..."
+                                    AppLanguage.HINDI -> "अपना प्रश्न पूछें..."
+                                    else -> "Ask your question..."
+                                },
                                 fontSize = 12.sp
                             )
                         },
@@ -117,10 +126,11 @@ fun KisanMitraDialog(
                             if (queryText.isNotBlank()) {
                                 val userQ = queryText
                                 queryText = ""
-                                val reply = if (language == AppLanguage.HINDI)
-                                    "आपके प्रश्न ('$userQ') का उत्तर: मौसम अनुकूल है। फसल में कीटनाशक छिड़काव शाम 4 बजे के बाद करें।"
-                                else
-                                    "Reply to ('$userQ'): Weather conditions are suitable. Spray pesticide after 4:00 PM today."
+                                val reply = when (language) {
+                                    AppLanguage.MARATHI -> "आपल्या प्रश्नाचे ('$userQ') उत्तर: हवामान अनुकूल आहे. पिकावर कीटकनाशक फवारणी संध्याकाळी ४ नंतर करावी."
+                                    AppLanguage.HINDI -> "आपके प्रश्न ('$userQ') का उत्तर: मौसम अनुकूल है। फसल में कीटनाशक छिड़काव शाम 4 बजे के बाद करें।"
+                                    else -> "Reply to ('$userQ'): Weather conditions are suitable. Spray pesticide after 4:00 PM today."
+                                }
                                 chatMessages = chatMessages + ("Q: $userQ") + reply
                             }
                         },

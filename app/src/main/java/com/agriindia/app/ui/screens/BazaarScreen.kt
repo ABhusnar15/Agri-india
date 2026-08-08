@@ -31,6 +31,7 @@ fun BazaarScreen(
     onOpenSellProduce: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
 
     val filteredProducts = if (selectedCategory == "All") products else products.filter { it.category.equals(selectedCategory, ignoreCase = true) }
 
@@ -53,13 +54,21 @@ fun BazaarScreen(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = if (isHi) "कृषि बाज़ार एवं प्रत्यक्ष बिक्री" else "Krishi Bazaar & Direct Sale",
+                        text = when (language) {
+                            AppLanguage.MARATHI -> "कृषी थेट बाजार व शेतमाल विक्री"
+                            AppLanguage.HINDI -> "कृषि बाज़ार एवं प्रत्यक्ष बिक्री"
+                            else -> "Krishi Bazaar & Direct Sale"
+                        },
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         fontSize = 16.sp
                     )
                     Text(
-                        text = if (isHi) "प्रमाणित बीज, जैविक उर्वरक एवं उपकरण खरीदें" else "Buy certified seeds, fertilizers & sell harvest direct",
+                        text = when (language) {
+                            AppLanguage.MARATHI -> "प्रमाणित बियाणे, जैविक खते व अवजारे खरेदी करा"
+                            AppLanguage.HINDI -> "प्रमाणित बीज, जैविक उर्वरक एवं उपकरण खरीदें"
+                            else -> "Buy certified seeds, fertilizers & sell harvest direct"
+                        },
                         color = Color(0xFFD1FAE5),
                         fontSize = 11.sp
                     )
@@ -71,7 +80,14 @@ fun BazaarScreen(
                 ) {
                     Icon(imageVector = Icons.Default.Sell, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(if (isHi) "फसल बेचें" else "Sell Produce", fontSize = 11.sp)
+                    Text(
+                        when (language) {
+                            AppLanguage.MARATHI -> "माल विका"
+                            AppLanguage.HINDI -> "फसल बेचें"
+                            else -> "Sell Produce"
+                        },
+                        fontSize = 11.sp
+                    )
                 }
             }
         }
@@ -87,7 +103,20 @@ fun BazaarScreen(
                 FilterChip(
                     selected = selectedCategory == cat,
                     onClick = { onSelectCategory(cat) },
-                    label = { Text(cat, fontSize = 11.sp) },
+                    label = {
+                        Text(
+                            when (cat) {
+                                "All" -> if (isMr) "सर्व" else if (isHi) "सभी" else "All"
+                                "Seeds" -> if (isMr) "बियाणे" else if (isHi) "बीज" else "Seeds"
+                                "Fertilizers" -> if (isMr) "खते" else if (isHi) "उर्वरक" else "Fertilizers"
+                                "Pesticides" -> if (isMr) "कीटकनाशके" else if (isHi) "कीटनाशक" else "Pesticides"
+                                "Irrigation" -> if (isMr) "सिंचन" else if (isHi) "सिंचाई" else "Irrigation"
+                                "Machinery" -> if (isMr) "यंत्रसामग्री" else if (isHi) "कृषि यंत्र" else "Machinery"
+                                else -> cat
+                            },
+                            fontSize = 11.sp
+                        )
+                    },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Color(0xFF059669),
                         selectedLabelColor = Color.White
@@ -103,7 +132,7 @@ fun BazaarScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             items(filteredProducts) { product ->
-                ProductCard(product = product, isHi = isHi, onAddToCart = { onAddToCart(product) })
+                ProductCard(product = product, isHi = isHi || isMr, onAddToCart = { onAddToCart(product) })
             }
         }
     }

@@ -28,6 +28,7 @@ fun YojnaScreen(
     onOpenCalculator: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
 
     Column(
         modifier = Modifier
@@ -54,13 +55,21 @@ fun YojnaScreen(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = if (isHi) "सरकारी योजना जागरूकता" else "Government Yojna Awareness",
+                        text = when (language) {
+                            AppLanguage.MARATHI -> "शासकीय कृषी योजना माहिती"
+                            AppLanguage.HINDI -> "सरकारी योजना जागरूकता"
+                            else -> "Government Yojna Awareness"
+                        },
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                         fontSize = 16.sp
                     )
                     Text(
-                        text = if (isHi) "अपनी भूमि और फसल के आधार पर सब्सिडी जानें" else "Discover eligible subsidies for your farm",
+                        text = when (language) {
+                            AppLanguage.MARATHI -> "आपल्या जमिनीच्या आधारावर सरकारी अनुदान तपासा"
+                            AppLanguage.HINDI -> "अपनी भूमि और फसल के आधार पर सब्सिडी जानें"
+                            else -> "Discover eligible subsidies for your farm"
+                        },
                         color = Color(0xFFFEF3C7),
                         fontSize = 11.sp
                     )
@@ -77,7 +86,14 @@ fun YojnaScreen(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(if (isHi) "पात्रता जांचें" else "Check Eligibility", fontSize = 11.sp)
+                        Text(
+                            when (language) {
+                                AppLanguage.MARATHI -> "पात्रता तपासा"
+                                AppLanguage.HINDI -> "पात्रता जांचें"
+                                else -> "Check Eligibility"
+                            },
+                            fontSize = 11.sp
+                        )
                     }
                 }
             }
@@ -86,7 +102,11 @@ fun YojnaScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = if (isHi) "मुख्य केंद्र एवं राज्य योजनाएं (${yojnas.size})" else "Featured Central & State Schemes (${yojnas.size})",
+            text = when (language) {
+                AppLanguage.MARATHI -> "प्रमुख केंद्र व राज्य योजना (${yojnas.size})"
+                AppLanguage.HINDI -> "मुख्य केंद्र एवं राज्य योजनाएं (${yojnas.size})"
+                else -> "Featured Central & State Schemes (${yojnas.size})"
+            },
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF0F172A)
@@ -99,7 +119,7 @@ fun YojnaScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             items(yojnas) { scheme ->
-                YojnaSchemeCard(scheme = scheme, isHi = isHi)
+                YojnaSchemeCard(scheme = scheme, isHi = isHi || isMr)
             }
         }
     }

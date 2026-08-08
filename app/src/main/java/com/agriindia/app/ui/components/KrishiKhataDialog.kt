@@ -27,6 +27,7 @@ fun KrishiKhataDialog(
     onDismiss: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
 
     var selectedSeason by remember { mutableStateOf("Rabi 2025-26") }
     var newCategory by remember { mutableStateOf("Seeds") }
@@ -37,10 +38,10 @@ fun KrishiKhataDialog(
     var entries by remember {
         mutableStateOf(
             listOf(
-                FarmExpenseEntry("1", "Rabi 2025-26", "Wheat (गेहूं)", "Expense", "Seeds (बीज)", 4200.0, "15 Nov 2025", "Certified HD-3226 2 Quintal"),
-                FarmExpenseEntry("2", "Rabi 2025-26", "Wheat (गेहूं)", "Expense", "Fertilizer (खाद)", 3850.0, "20 Nov 2025", "DAP + Urea 3 Bags"),
-                FarmExpenseEntry("3", "Rabi 2025-26", "Wheat (गेहूं)", "Expense", "Tractor / Tillage", 5000.0, "12 Nov 2025", "Rotavator plowing 4 acres"),
-                FarmExpenseEntry("4", "Rabi 2025-26", "Wheat (गेहूं)", "Revenue", "Harvest Sale (बिक्री)", 54000.0, "28 Mar 2026", "24 Quintal sold @ ₹2275 MSP")
+                FarmExpenseEntry("1", "Rabi 2025-26", "Wheat (गहू / गेहूं)", "Expense", "Seeds (बियाणे)", 4200.0, "15 Nov 2025", "Certified HD-3226 2 Quintal"),
+                FarmExpenseEntry("2", "Rabi 2025-26", "Wheat (गहू / गेहूं)", "Expense", "Fertilizer (खते)", 3850.0, "20 Nov 2025", "DAP + Urea 3 Bags"),
+                FarmExpenseEntry("3", "Rabi 2025-26", "Wheat (गहू / गेहूं)", "Expense", "Tractor / नांगरणी", 5000.0, "12 Nov 2025", "Rotavator plowing 4 acres"),
+                FarmExpenseEntry("4", "Rabi 2025-26", "Wheat (गहू / गेहूं)", "Revenue", "Harvest Sale (उत्पन्न विक्री)", 54000.0, "28 Mar 2026", "24 Quintal sold @ ₹2275 MSP")
             )
         )
     }
@@ -75,13 +76,21 @@ fun KrishiKhataDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = if (isHi) "डिजिटल कृषि बही-खाता" else "Smart Krishi Khata Ledger",
+                            text = when (language) {
+                                AppLanguage.MARATHI -> "डिजिटल शेतकरी खातेवही"
+                                AppLanguage.HINDI -> "डिजिटल कृषि बही-खाता"
+                                else -> "Smart Krishi Khata Ledger"
+                            },
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
                             color = Color(0xFF0F172A)
                         )
                         Text(
-                            text = if (isHi) "फसल लागत, मुनाफा व आय-व्यय हिसाब" else "Farm Expense, Harvest Income & Profit",
+                            text = when (language) {
+                                AppLanguage.MARATHI -> "पिकाचा खर्च, नफा व आय-व्यय हिशोब"
+                                AppLanguage.HINDI -> "फसल लागत, मुनाफा व आय-व्यय हिसाब"
+                                else -> "Farm Expense, Harvest Income & Profit"
+                            },
                             fontSize = 11.sp,
                             color = Color(0xFF64748B)
                         )

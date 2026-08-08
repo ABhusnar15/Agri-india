@@ -27,6 +27,7 @@ fun MandiTrendDialog(
     onDismiss: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
 
     // Simulated 30-Day price trends
     val priceHistory = listOf(
@@ -63,12 +64,12 @@ fun MandiTrendDialog(
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
                     Text(
-                        text = "${item.commodity} (${if (isHi) item.commodityHi else item.commodity})",
+                        text = if (isMr || isHi) "${item.commodityHi} - बाजार भाव विश्लेषण" else "${item.commodity} - Mandi Trend Analysis",
                         fontWeight = FontWeight.Bold,
                         fontSize = 17.sp
                     )
                     Text(
-                        text = "${item.mandiName}, ${item.state}",
+                        text = if (isMr) "${item.mandiName}, ${item.state} (३० दिवसांचा ट्रेंड)" else if (isHi) "${item.mandiName}, ${item.state} (30-दिवसीय रुझान)" else "${item.mandiName}, ${item.state} (30-Day Trend)",
                         fontSize = 11.sp,
                         color = Color(0xFF64748B)
                     )

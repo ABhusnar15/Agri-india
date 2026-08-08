@@ -31,6 +31,7 @@ fun CommunityScreen(
     onAddPost: (String, String) -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
     var showCreatePostDialog by remember { mutableStateOf(false) }
 
     Box(
@@ -45,7 +46,11 @@ fun CommunityScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = if (isHi) "किसान चौपाल (सोशल नेटवर्क)" else "Kisan Chopal (Social Network)",
+                    text = when (language) {
+                        AppLanguage.MARATHI -> "शेतकरी चौपाल (चर्चा मंच)"
+                        AppLanguage.HINDI -> "किसान चौपाल (सोशल नेटवर्क)"
+                        else -> "Kisan Chopal (Social Network)"
+                    },
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0F172A)
@@ -58,7 +63,14 @@ fun CommunityScreen(
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(if (isHi) "पोस्ट लिखें" else "New Post", fontSize = 11.sp)
+                    Text(
+                        when (language) {
+                            AppLanguage.MARATHI -> "पोस्ट लिहा"
+                            AppLanguage.HINDI -> "पोस्ट लिखें"
+                            else -> "New Post"
+                        },
+                        fontSize = 11.sp
+                    )
                 }
             }
 
@@ -69,14 +81,14 @@ fun CommunityScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(posts) { post ->
-                    CommunityPostCard(post = post, isHi = isHi, onToggleLike = { onToggleLike(post.id) })
+                    CommunityPostCard(post = post, isHi = isHi || isMr, onToggleLike = { onToggleLike(post.id) })
                 }
             }
         }
 
         if (showCreatePostDialog) {
             CreatePostDialog(
-                isHi = isHi,
+                isHi = isHi || isMr,
                 onDismiss = { showCreatePostDialog = false },
                 onSubmit = { content, category ->
                     onAddPost(content, category)

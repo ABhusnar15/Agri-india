@@ -28,6 +28,7 @@ fun YojnaCalculatorDialog(
     var isCalculated by remember { mutableStateOf(false) }
 
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -46,7 +47,11 @@ fun YojnaCalculatorDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (isHi) "सरकारी योजना पात्रता कैलक्यूलेटर" else "Yojna Eligibility Calculator",
+                        text = when (language) {
+                            AppLanguage.MARATHI -> "शासकीय योजना पात्रता गणकयंत्र"
+                            AppLanguage.HINDI -> "सरकारी योजना पात्रता कैलक्यूलेटर"
+                            else -> "Yojna Eligibility Calculator"
+                        },
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -59,7 +64,11 @@ fun YojnaCalculatorDialog(
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = if (isHi) "अपनी भूमि का आकार दर्ज करें:" else "Enter your landholding area (in Acres):",
+                    text = when (language) {
+                        AppLanguage.MARATHI -> "आपल्या जमिनीचे क्षेत्र टाका (एकर):"
+                        AppLanguage.HINDI -> "अपनी भूमि का आकार दर्ज करें:"
+                        else -> "Enter your landholding area (in Acres):"
+                    },
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -75,7 +84,11 @@ fun YojnaCalculatorDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = if (isHi) "मुख्य फसल चुनें:" else "Select Primary Crop:",
+                    text = when (language) {
+                        AppLanguage.MARATHI -> "मुख्य पीक निवडा:"
+                        AppLanguage.HINDI -> "मुख्य फसल चुनें:"
+                        else -> "Select Primary Crop:"
+                    },
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -98,7 +111,13 @@ fun YojnaCalculatorDialog(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669)),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(if (isHi) "पात्रता जांचें" else "Calculate Eligibility")
+                    Text(
+                        when (language) {
+                            AppLanguage.MARATHI -> "पात्रता तपासा"
+                            AppLanguage.HINDI -> "पात्रता जांचें"
+                            else -> "Calculate Eligibility"
+                        }
+                    )
                 }
 
                 if (isCalculated) {
@@ -117,17 +136,21 @@ fun YojnaCalculatorDialog(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = if (isHi) "आप 4 योजनाओं के लिए पात्र हैं!" else "Eligible for 4 Schemes!",
+                                    text = when (language) {
+                                        AppLanguage.MARATHI -> "तुम्ही ४ शासकीय योजनांसाठी पात्र आहात!"
+                                        AppLanguage.HINDI -> "आप 4 योजनाओं के लिए पात्र हैं!"
+                                        else -> "Eligible for 4 Schemes!"
+                                    },
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp,
                                     color = Color(0xFF065F46)
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("1. PM-Kisan: ₹6,000/year Direct Benefit", fontSize = 12.sp)
-                            Text("2. PMFBY Crop Insurance: Up to 90% Subsidy", fontSize = 12.sp)
-                            Text("3. Soil Health Card: 100% Free Soil Test", fontSize = 12.sp)
-                            Text("4. KCC Loan Limit: ₹1,80,000 at 4% Interest", fontSize = 12.sp)
+                            Text(if (isMr) "1. पीएम-किसान: ₹६,०००/वर्ष थेट बँक खात्यात" else "1. PM-Kisan: ₹6,000/year Direct Benefit", fontSize = 12.sp)
+                            Text(if (isMr) "2. पीएमएफबीवाय पीक विमा: ९०% पर्यंत सरकारी अनुदान" else "2. PMFBY Crop Insurance: Up to 90% Subsidy", fontSize = 12.sp)
+                            Text(if (isMr) "3. माती आरोग्य पत्रिका: १००% मोफत माती परीक्षण" else "3. Soil Health Card: 100% Free Soil Test", fontSize = 12.sp)
+                            Text(if (isMr) "4. केसीसी किसान क्रेडिट कार्ड: ४% व्याजदराने कर्ज" else "4. KCC Loan Limit: ₹1,80,000 at 4% Interest", fontSize = 12.sp)
                         }
                     }
                 }

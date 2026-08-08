@@ -26,6 +26,7 @@ fun SoilHealthDialog(
     onDismiss: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
 
     var phValue by remember { mutableFloatStateOf(6.8f) }
     var nitrogenKg by remember { mutableFloatStateOf(210f) }
@@ -37,14 +38,14 @@ fun SoilHealthDialog(
 
     fun calculateSoilReport() {
         val condition = when {
-            phValue < 6.0f -> "Acidic Soil (अम्लीय मृदा)"
-            phValue > 7.8f -> "Alkaline / Calcareous Soil (क्षारीय मृदा)"
-            else -> "Optimal Neutral Soil (उत्तम दोमट मृदा)"
+            phValue < 6.0f -> if (isMr) "Acidic Soil (आम्लधर्मी माती)" else "Acidic Soil (अम्लीय मृदा)"
+            phValue > 7.8f -> if (isMr) "Alkaline / Calcareous Soil (खारवट / चोपण माती)" else "Alkaline / Calcareous Soil (क्षारीय मृदा)"
+            else -> if (isMr) "Optimal Neutral Soil (उत्कृष्ट सुपीक काळी जमीन)" else "Optimal Neutral Soil (उत्तम दोमट मृदा)"
         }
 
-        val nStatus = if (nitrogenKg < 240) "Low (कम)" else if (nitrogenKg < 400) "Medium (मध्यम)" else "High (उच्च)"
-        val pStatus = if (phosphorusKg < 15) "Low (कम)" else if (phosphorusKg < 30) "Medium (मध्यम)" else "High (उच्च)"
-        val kStatus = if (potassiumKg < 140) "Low (कम)" else if (potassiumKg < 280) "Medium (मध्यम)" else "High (उच्च)"
+        val nStatus = if (nitrogenKg < 240) "Low (कमी)" else if (nitrogenKg < 400) "Medium (मध्यम)" else "High (जास्त)"
+        val pStatus = if (phosphorusKg < 15) "Low (कमी)" else if (phosphorusKg < 30) "Medium (मध्यम)" else "High (जास्त)"
+        val kStatus = if (potassiumKg < 140) "Low (कमी)" else if (potassiumKg < 280) "Medium (मध्यम)" else "High (जास्त)"
 
         val ureaDose = if (nitrogenKg < 240) 65.0 else 45.0
         val dapDose = if (phosphorusKg < 20) 45.0 else 30.0
@@ -59,12 +60,22 @@ fun SoilHealthDialog(
             "Soil health is optimal. Maintain organic matter with 2-3 tonnes Farm Yard Manure (FYM) and balanced NPK application."
         }
 
-        val recHi = if (phValue < 6.0f) {
-            "मृदा अम्लीय है। बुवाई से पूर्व कृषि चूना (200 किग्रा/एकड़) डालें तथा रॉक फॉस्फेट व पीएसबी कल्चर का प्रयोग करें।"
-        } else if (phValue > 7.8f) {
-            "मृदा क्षारीय है। कृषि जिप्सम (250 किग्रा/एकड़) डालें तथा ढैंचा या सनई की हरी खाद मिलाकर पीएच स्तर संतुलित करें।"
+        val recHi = if (isMr) {
+            if (phValue < 6.0f) {
+                "माती आम्लधर्मी आहे. पेरणीपूर्वी कृषी चुना (२०० किलो/एकर) टाकावा आणि पीएसबी जीवाणू संवर्धकाचा वापर करावा."
+            } else if (phValue > 7.8f) {
+                "माती खारवट/चोपण आहे. कृषी जिप्सम (२५० किलो/एकर) टाकावा आणि ताग/धैंचाचे हिरवळीचे खत जमिनीत गाडावे."
+            } else {
+                "मातीचे आरोग्य अत्यंत उत्तम आहे. २-३ टन शेणखत (FYM) आणि शिफारशीत NPK खतांचा वापर करून सुपीकता टिकवून ठेवा."
+            }
         } else {
-            "मृदा का स्वास्थ्य उत्तम है। 2-3 टन गोबर की सड़ी खाद (FYM) व संतुलित एनपीके डालकर उर्वरकता बनाए रखें।"
+            if (phValue < 6.0f) {
+                "मृदा अम्लीय है। बुवाई से पूर्व कृषि चूना (200 किग्रा/एकड़) डालें तथा रॉक फॉस्फेट व पीएसबी कल्चर का प्रयोग करें।"
+            } else if (phValue > 7.8f) {
+                "मृदा क्षारीय है। कृषि जिप्सम (250 किग्रा/एकड़) डालें तथा ढैंचा या सनई की हरी खाद मिलाकर पीएच स्तर संतुलित करें।"
+            } else {
+                "मृदा का स्वास्थ्य उत्तम है। 2-3 टन गोबर की सड़ी खाद (FYM) व संतुलित एनपीके डालकर उर्वरकता बनाए रखें।"
+            }
         }
 
         report = SoilHealthReport(
@@ -116,13 +127,21 @@ fun SoilHealthDialog(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = if (isHi) "डिजिटल मृदा स्वास्थ्य कार्ड" else "Smart Soil Health Card",
+                            text = when (language) {
+                                AppLanguage.MARATHI -> "डिजिटल माती आरोग्य पत्रिका"
+                                AppLanguage.HINDI -> "डिजिटल मृदा स्वास्थ्य कार्ड"
+                                else -> "Smart Soil Health Card"
+                            },
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
                             color = Color(0xFF0F172A)
                         )
                         Text(
-                            text = if (isHi) "एन-पी-के विश्लेषण एवं उर्वरक खुराक" else "NPK Lab Diagnosis & Fertilizer Dosage",
+                            text = when (language) {
+                                AppLanguage.MARATHI -> "NPK विश्लेषण व खत मात्रा शिफारस"
+                                AppLanguage.HINDI -> "एन-पी-के विश्लेषण एवं उर्वरक खुराक"
+                                else -> "NPK Lab Diagnosis & Fertilizer Dosage"
+                            },
                             fontSize = 11.sp,
                             color = Color(0xFF64748B)
                         )

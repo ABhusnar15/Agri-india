@@ -144,7 +144,15 @@ class AgriViewModel(
 
     // Actions
     fun toggleLanguage() {
-        _language.value = if (_language.value == AppLanguage.ENGLISH) AppLanguage.HINDI else AppLanguage.ENGLISH
+        _language.value = when (_language.value) {
+            AppLanguage.ENGLISH -> AppLanguage.HINDI
+            AppLanguage.HINDI -> AppLanguage.MARATHI
+            AppLanguage.MARATHI -> AppLanguage.ENGLISH
+        }
+    }
+
+    fun setLanguage(lang: AppLanguage) {
+        _language.value = lang
     }
 
     fun selectTab(index: Int) {

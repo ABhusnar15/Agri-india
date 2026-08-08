@@ -27,27 +27,32 @@ fun FertilizerCalculatorDialog(
     onDismiss: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
     var acresText by remember { mutableStateOf("2") }
-    var selectedCrop by remember { mutableStateOf("Paddy / धान") }
+    var selectedCrop by remember { mutableStateOf("Paddy / धान / भात") }
     var expandedCrop by remember { mutableStateOf(false) }
 
     val cropList = listOf(
-        "Paddy / धान",
-        "Wheat / गेहूं",
-        "Cotton / कपास",
-        "Sugarcane / गन्ना",
-        "Maize / मक्का",
-        "Mustard / सरसों"
+        "Paddy / धान / भात",
+        "Wheat / गेहूं / गहू",
+        "Cotton / कपास / कापूस",
+        "Sugarcane / गन्ना / ऊस",
+        "Soybean / सोयाबीन",
+        "Maize / मक्का / मका",
+        "Onion / प्याज / कांदा",
+        "Mustard / सरसों / मोहरी"
     )
 
     val acres = acresText.toDoubleOrNull() ?: 1.0
 
     // Fertilizer dosage multipliers per Acre
-    val (ureaBags, dapBags, mopBags, zincKg) = when (selectedCrop) {
-        "Wheat / गेहूं" -> Quad(1.5 * acres, 0.75 * acres, 0.4 * acres, 5.0 * acres)
-        "Cotton / कपास" -> Quad(2.0 * acres, 1.0 * acres, 0.6 * acres, 8.0 * acres)
-        "Sugarcane / गन्ना" -> Quad(3.5 * acres, 1.5 * acres, 1.0 * acres, 10.0 * acres)
-        "Maize / मक्का" -> Quad(1.8 * acres, 0.8 * acres, 0.5 * acres, 6.0 * acres)
+    val (ureaBags, dapBags, mopBags, zincKg) = when {
+        selectedCrop.contains("Wheat") || selectedCrop.contains("गेहूं") || selectedCrop.contains("गहू") -> Quad(1.5 * acres, 0.75 * acres, 0.4 * acres, 5.0 * acres)
+        selectedCrop.contains("Cotton") || selectedCrop.contains("कपास") || selectedCrop.contains("कापूस") -> Quad(2.0 * acres, 1.0 * acres, 0.6 * acres, 8.0 * acres)
+        selectedCrop.contains("Sugarcane") || selectedCrop.contains("गन्ना") || selectedCrop.contains("ऊस") -> Quad(3.5 * acres, 1.5 * acres, 1.0 * acres, 10.0 * acres)
+        selectedCrop.contains("Soybean") || selectedCrop.contains("सोयाबीन") -> Quad(0.8 * acres, 1.2 * acres, 0.5 * acres, 5.0 * acres)
+        selectedCrop.contains("Onion") || selectedCrop.contains("कांदा") -> Quad(1.8 * acres, 1.0 * acres, 0.8 * acres, 8.0 * acres)
+        selectedCrop.contains("Maize") || selectedCrop.contains("मक्का") || selectedCrop.contains("मका") -> Quad(1.8 * acres, 0.8 * acres, 0.5 * acres, 6.0 * acres)
         else -> Quad(1.6 * acres, 0.8 * acres, 0.5 * acres, 6.0 * acres) // Paddy default
     }
 
@@ -72,12 +77,20 @@ fun FertilizerCalculatorDialog(
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
                     Text(
-                        text = if (isHi) "N-P-K उर्वरक कैलकुलेटर" else "N-P-K Fertilizer Calculator",
+                        text = when (language) {
+                            AppLanguage.MARATHI -> "खत मात्रा गणकयंत्र"
+                            AppLanguage.HINDI -> "उर्वरक एवं खाद कैलकुलेटर"
+                            else -> "Fertilizer Dosage Calculator"
+                        },
                         fontWeight = FontWeight.Bold,
                         fontSize = 17.sp
                     )
                     Text(
-                        text = if (isHi) "सटीक खाद की मात्रा और एकड़ हिसाब" else "Exact Nutrient & Bag Requirements",
+                        text = when (language) {
+                            AppLanguage.MARATHI -> "प्रति एकर अचूक युरिया, डीएपी व पोटॅश"
+                            AppLanguage.HINDI -> "प्रति एकड़ सटीक यूरिया, डीएपी व पोटाश"
+                            else -> "Accurate Urea, DAP & MOP Per Acre"
+                        },
                         fontSize = 11.sp,
                         color = Color(0xFF64748B)
                     )

@@ -36,6 +36,7 @@ fun AgriTopAppBar(
 ) {
     var showToolsMenu by remember { mutableStateOf(false) }
     val isHi = currentLanguage == AppLanguage.HINDI
+    val isMr = currentLanguage == AppLanguage.MARATHI
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -53,16 +54,28 @@ fun AgriTopAppBar(
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     Text(
-                        text = if (isHi) "एग्री इंडिया" else "Agri India",
+                        text = when (currentLanguage) {
+                            AppLanguage.MARATHI -> "अॅग्री इंडिया"
+                            AppLanguage.HINDI -> "एग्री इंडिया"
+                            else -> "Agri India"
+                        },
                         fontWeight = FontWeight.Bold,
                         fontSize = 19.sp,
                         color = Color.White
                     )
                     Text(
                         text = if (userName != null) {
-                            if (isHi) "नमस्ते, $userName" else "Hello, $userName"
+                            when (currentLanguage) {
+                                AppLanguage.MARATHI -> "नमस्कार, $userName"
+                                AppLanguage.HINDI -> "नमस्ते, $userName"
+                                else -> "Hello, $userName"
+                            }
                         } else {
-                            if (isHi) "उन्नत भारतीय किसान ऐप" else "Smart Farmers App"
+                            when (currentLanguage) {
+                                AppLanguage.MARATHI -> "स्मार्ट शेतकरी मित्र"
+                                AppLanguage.HINDI -> "उन्नत भारतीय किसान ऐप"
+                                else -> "Smart Farmers App"
+                            }
                         },
                         fontSize = 11.sp,
                         color = Color(0xFFD1FAE5)
@@ -95,7 +108,15 @@ fun AgriTopAppBar(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.FlightTakeoff, contentDescription = null, tint = Color(0xFF0284C7), modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(if (isHi) "🚀 ड्रोन स्प्रे बुकिंग" else "🚀 Kisan Drone Spray", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    when (currentLanguage) {
+                                        AppLanguage.MARATHI -> "🚀 ड्रोन फवारणी बुकिंग"
+                                        AppLanguage.HINDI -> "🚀 ड्रोन स्प्रे बुकिंग"
+                                        else -> "🚀 Kisan Drone Spray"
+                                    },
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         },
                         onClick = {
@@ -108,7 +129,15 @@ fun AgriTopAppBar(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.Eco, contentDescription = null, tint = Color(0xFFD97706), modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(if (isHi) "🧪 मृदा स्वास्थ्य कार्ड (NPK)" else "🧪 Smart Soil Health Card", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    when (currentLanguage) {
+                                        AppLanguage.MARATHI -> "🧪 स्मार्ट माती आरोग्य पत्रिका"
+                                        AppLanguage.HINDI -> "🧪 मृदा स्वास्थ्य कार्ड (NPK)"
+                                        else -> "🧪 Smart Soil Health Card"
+                                    },
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         },
                         onClick = {
@@ -121,7 +150,15 @@ fun AgriTopAppBar(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.Pets, contentDescription = null, tint = Color(0xFF059669), modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(if (isHi) "🐄 पशु चिकित्सा व डेयरी" else "🐄 Pashu Chikitsa & Dairy", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    when (currentLanguage) {
+                                        AppLanguage.MARATHI -> "🐄 पशुवैद्यकीय व दुग्धसेवा"
+                                        AppLanguage.HINDI -> "🐄 पशु चिकित्सा व डेयरी"
+                                        else -> "🐄 Pashu Chikitsa & Dairy"
+                                    },
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         },
                         onClick = {
@@ -134,7 +171,15 @@ fun AgriTopAppBar(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.SolarPower, contentDescription = null, tint = Color(0xFFCA8A04), modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(if (isHi) "☀️ पीएम-कुसुम सोलर पंप" else "☀️ PM-KUSUM Solar Pump", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    when (currentLanguage) {
+                                        AppLanguage.MARATHI -> "☀️ पीएम-कुसुम सौर कृषी पंप"
+                                        AppLanguage.HINDI -> "☀️ पीएम-कुसुम सोलर पंप"
+                                        else -> "☀️ PM-KUSUM Solar Pump"
+                                    },
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         },
                         onClick = {
@@ -147,7 +192,15 @@ fun AgriTopAppBar(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.AccountBalanceWallet, contentDescription = null, tint = Color(0xFF16A34A), modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(if (isHi) "📒 कृषि बही-खाता" else "📒 Smart Krishi Khata", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    when (currentLanguage) {
+                                        AppLanguage.MARATHI -> "📒 स्मार्ट शेतकरी खातेवही"
+                                        AppLanguage.HINDI -> "📒 कृषि बही-खाता"
+                                        else -> "📒 Smart Krishi Khata"
+                                    },
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         },
                         onClick = {
@@ -160,7 +213,15 @@ fun AgriTopAppBar(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.MedicalServices, contentDescription = null, tint = Color(0xFFDC2626), modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(if (isHi) "🩺 एआई फसल डॉक्टर" else "🩺 AI Crop Doctor", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    when (currentLanguage) {
+                                        AppLanguage.MARATHI -> "🩺 पीक डॉक्टर व रोग निदान"
+                                        AppLanguage.HINDI -> "🩺 एआई फसल डॉक्टर"
+                                        else -> "🩺 AI Crop Doctor"
+                                    },
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         },
                         onClick = {
@@ -173,7 +234,15 @@ fun AgriTopAppBar(
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.Science, contentDescription = null, tint = Color(0xFF7C3AED), modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(if (isHi) "🌿 उर्वरक व खाद कैलकुलेटर" else "🌿 Fertilizer Dosage Calc", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    when (currentLanguage) {
+                                        AppLanguage.MARATHI -> "🌿 खत मात्रा गणकयंत्र"
+                                        AppLanguage.HINDI -> "🌿 उर्वरक व खाद कैलकुलेटर"
+                                        else -> "🌿 Fertilizer Dosage Calc"
+                                    },
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             }
                         },
                         onClick = {
@@ -225,7 +294,7 @@ fun AgriTopAppBar(
 
             Spacer(modifier = Modifier.width(4.dp))
 
-            // Language Switcher Pill
+            // Language Switcher Pill (Cycles: EN -> हिं -> मरा)
             Surface(
                 onClick = onToggleLanguage,
                 shape = RoundedCornerShape(16.dp),
@@ -244,7 +313,11 @@ fun AgriTopAppBar(
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = if (currentLanguage == AppLanguage.ENGLISH) "हिं" else "EN",
+                        text = when (currentLanguage) {
+                            AppLanguage.ENGLISH -> "EN"
+                            AppLanguage.HINDI -> "हिं"
+                            AppLanguage.MARATHI -> "मरा"
+                        },
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
