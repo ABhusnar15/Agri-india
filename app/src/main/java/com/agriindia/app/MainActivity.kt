@@ -186,6 +186,10 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
     val orderHistory by viewModel.orderHistory.collectAsState()
     val appliedCoupon by viewModel.appliedCoupon.collectAsState()
 
+    val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
+    val context = LocalContext.current
+
     val speechLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
