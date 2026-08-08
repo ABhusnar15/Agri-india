@@ -50,11 +50,47 @@ fun LoginScreen(
     onClearError: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
+    val isMr = language == AppLanguage.MARATHI
+
     var passwordVisible by remember { mutableStateOf(false) }
+    var hasAttemptedSubmit by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
     var visible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { visible = true }
+
+    // Validation
+    val emailTrimmed = email.trim()
+    val isEmailFormat = emailTrimmed.contains("@") && emailTrimmed.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex())
+    val isPhoneFormat = emailTrimmed.matches("^[6-9]\\d{9}$".toRegex())
+    val isUserIdentifierValid = emailTrimmed.isNotEmpty() && (isEmailFormat || isPhoneFormat)
+
+    val emailError = if (hasAttemptedSubmit && !isUserIdentifierValid) {
+        if (emailTrimmed.isEmpty()) {
+            if (isMr) "कृपया ईमेल किंवा १० अंकी मोबाइल नंबर टाका"
+            else if (isHi) "कृपया ईमेल या 10 अंकों का मोबाइल नंबर दर्ज करें"
+            else "Please enter email or 10-digit phone number"
+        } else {
+            if (isMr) "अवैध ईमेल किंवा मोबाइल नंबर स्वरूप"
+            else if (isHi) "अवैध ईमेल या मोबाइल नंबर प्रारूप"
+            else "Invalid email or 10-digit mobile number"
+        }
+    } else null
+
+    val isPasswordValid = password.length >= 6
+    val passwordError = if (hasAttemptedSubmit && !isPasswordValid) {
+        if (password.isEmpty()) {
+            if (isMr) "कृपया पासवर्ड टाका"
+            else if (isHi) "कृपया पासवर्ड दर्ज करें"
+            else "Please enter your password"
+        } else {
+            if (isMr) "पासवर्ड किमान ६ वर्णांचा असावा"
+            else if (isHi) "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए"
+            else "Password must be at least 6 characters"
+        }
+    } else null
+
+    val isFormValid = isUserIdentifierValid && isPasswordValid
 
     Column(
         modifier = Modifier
@@ -79,7 +115,6 @@ fun LoginScreen(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // App icon
                 Surface(
                     modifier = Modifier.size(80.dp),
                     shape = CircleShape,
@@ -98,13 +133,13 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = if (isHi) "एग्री इंडिया" else "AgriIndia",
+                    text = if (isMr) "अ‍ॅग्री इंडिया" else if (isHi) "एग्री इंडिया" else "AgriIndia",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
                 Text(
-                    text = if (isHi) "किसान का डिजिटल साथी" else "Farmer's Digital Companion",
+                    text = if (isMr) "शेतकऱ्यांचा डिजिटल सोबती" else if (isHi) "किसान का डिजिटल साथी" else "Farmer's Digital Companion",
                     fontSize = 14.sp,
                     color = Color(0xFFD1FAE5)
                 )
@@ -119,7 +154,7 @@ fun LoginScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .offset(y = (-24).dp)
+                    .offset(y = (-30).dp)
                     .padding(horizontal = 20.dp),
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -130,23 +165,25 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = if (isHi) "लॉगिन करें" else "Welcome Back",
+                        text = if (isMr) "आपल्या खात्यात प्रवेश करा" else if (isHi) "अपने खाते में प्रवेश करें" else "Welcome Back",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF0F172A)
                     )
                     Text(
-                        text = if (isHi) "अपने खाते में लॉगिन करें" else "Sign in to your account",
+                        text = if (isMr) "लॉगिन करण्यासाठी खालील माहिती भरा" else if (isHi) "लॉग इन करने के लिए विवरण दर्ज करें" else "Sign in to continue to your account",
                         fontSize = 13.sp,
-                        color = Color(0xFF64748B),
-                        modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
+                        color = Color(0xFF64748B)
                     )
 
-                    // Error message
-                    if (errorMessage != null) {
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Error banner
+                    if (errorMessage != null || (hasAttemptedSubmit && !isFormValid)) {
                         Surface(
                             color = Color(0xFFFEF2F2),
                             shape = RoundedCornerShape(12.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFFECACA)),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
@@ -161,7 +198,7 @@ fun LoginScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = errorMessage,
+                                    text = errorMessage ?: if (isMr) "कृपया वैध ईमेल/मोबाइल व पासवर्ड टाका" else if (isHi) "कृपया वैध ईमेल/मोबाइल व पासवर्ड दर्ज करें" else "Please enter valid credentials",
                                     fontSize = 12.sp,
                                     color = Color(0xFFDC2626),
                                     modifier = Modifier.weight(1f)
@@ -179,17 +216,31 @@ fun LoginScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                    // Email field
+                    // Email / Phone field with real-time validation
                     OutlinedTextField(
                         value = email,
                         onValueChange = onEmailChange,
-                        label = { Text(if (isHi) "ईमेल" else "Email Address") },
+                        isError = emailError != null,
+                        label = { Text(if (isMr) "ईमेल किंवा मोबाइल नंबर *" else if (isHi) "ईमेल या मोबाइल नंबर *" else "Email or Mobile Number *") },
+                        placeholder = { Text("farmer@agri.in / 9876543210", fontSize = 12.sp, color = Color(0xFF94A3B8)) },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Outlined.Email,
+                                imageVector = Icons.Outlined.Person,
                                 contentDescription = null,
-                                tint = Color(0xFF059669)
+                                tint = if (emailError != null) Color(0xFFDC2626) else Color(0xFF059669)
                             )
+                        },
+                        trailingIcon = {
+                            if (emailError != null) {
+                                Icon(Icons.Default.Error, contentDescription = "Error", tint = Color(0xFFDC2626))
+                            } else if (isUserIdentifierValid) {
+                                Icon(Icons.Default.CheckCircle, contentDescription = "Valid", tint = Color(0xFF059669))
+                            }
+                        },
+                        supportingText = {
+                            if (emailError != null) {
+                                Text(emailError, color = Color(0xFFDC2626), fontSize = 11.sp)
+                            }
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
@@ -202,33 +253,38 @@ fun LoginScreen(
                         shape = RoundedCornerShape(14.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF059669),
-                            focusedLabelColor = Color(0xFF059669),
-                            cursorColor = Color(0xFF059669)
+                            errorBorderColor = Color(0xFFDC2626)
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                    // Password field
+                    // Password field with real-time validation
                     OutlinedTextField(
                         value = password,
                         onValueChange = onPasswordChange,
-                        label = { Text(if (isHi) "पासवर्ड" else "Password") },
+                        isError = passwordError != null,
+                        label = { Text(if (isMr) "पासवर्ड *" else if (isHi) "पासवर्ड *" else "Password *") },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Outlined.Lock,
                                 contentDescription = null,
-                                tint = Color(0xFF059669)
+                                tint = if (passwordError != null) Color(0xFFDC2626) else Color(0xFF059669)
                             )
                         },
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
                                     imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    contentDescription = "Toggle password visibility",
+                                    contentDescription = if (passwordVisible) "Hide password" else "Show password",
                                     tint = Color(0xFF94A3B8)
                                 )
+                            }
+                        },
+                        supportingText = {
+                            if (passwordError != null) {
+                                Text(passwordError, color = Color(0xFFDC2626), fontSize = 11.sp)
                             }
                         },
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -236,38 +292,46 @@ fun LoginScreen(
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done
                         ),
-                        keyboardActions = KeyboardActions(onDone = { onLogin() }),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                focusManager.clearFocus()
+                                hasAttemptedSubmit = true
+                                if (isFormValid) onLogin()
+                            }
+                        ),
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Color(0xFF059669),
-                            focusedLabelColor = Color(0xFF059669),
-                            cursorColor = Color(0xFF059669)
+                            errorBorderColor = Color(0xFFDC2626)
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    // Forgot password
+                    // Forgot password link
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        Text(
-                            text = if (isHi) "पासवर्ड भूल गए?" else "Forgot Password?",
-                            fontSize = 13.sp,
-                            color = Color(0xFF059669),
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.clickable { onForgotPassword() }
-                        )
+                        TextButton(onClick = onForgotPassword) {
+                            Text(
+                                text = if (isMr) "पासवर्ड विसरलात?" else if (isHi) "पासवर्ड भूल गए?" else "Forgot Password?",
+                                fontSize = 13.sp,
+                                color = Color(0xFF059669)
+                            )
+                        }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    // Login button
+                    // Login button with validation gate
                     Button(
-                        onClick = onLogin,
+                        onClick = {
+                            hasAttemptedSubmit = true
+                            if (isFormValid) {
+                                onLogin()
+                            }
+                        },
                         enabled = !isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -275,14 +339,14 @@ fun LoginScreen(
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF059669),
-                            disabledContainerColor = Color(0xFF059669).copy(alpha = 0.5f)
+                            disabledContainerColor = Color(0xFF94A3B8)
                         )
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(22.dp),
+                                modifier = Modifier.size(24.dp),
                                 color = Color.White,
-                                strokeWidth = 2.dp
+                                strokeWidth = 2.5.dp
                             )
                         } else {
                             Icon(
@@ -292,38 +356,35 @@ fun LoginScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = if (isHi) "लॉगिन करें" else "Sign In",
+                                text = if (isMr) "लॉगिन करा" else if (isHi) "लॉग इन करें" else "Log In",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Sign up prompt
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = if (isMr) "खाते नाही का? " else if (isHi) "खाता नहीं है? " else "Don't have an account? ",
+                            fontSize = 14.sp,
+                            color = Color(0xFF64748B)
+                        )
+                        Text(
+                            text = if (isMr) "नोंदणी करा" else if (isHi) "साइन अप करें" else "Sign Up",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF059669),
+                            modifier = Modifier.clickable { onNavigateToSignUp() }
+                        )
+                    }
                 }
             }
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Sign up link
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 32.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = if (isHi) "नया खाता बनाएं? " else "Don't have an account? ",
-                fontSize = 14.sp,
-                color = Color(0xFF64748B)
-            )
-            Text(
-                text = if (isHi) "रजिस्टर करें" else "Sign Up",
-                fontSize = 14.sp,
-                color = Color(0xFF059669),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable { onNavigateToSignUp() }
-            )
         }
     }
 }

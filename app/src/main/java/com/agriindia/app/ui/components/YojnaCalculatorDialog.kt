@@ -73,10 +73,34 @@ fun YojnaCalculatorDialog(
                     fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
+                val isLandAreaValid = landArea.toDoubleOrNull() != null && (landArea.toDoubleOrNull() ?: 0.0) > 0
+                val landAreaError = if (!isLandAreaValid && landArea.isNotEmpty()) {
+                    if (isMr) "कृपया वैध एकर संख्या प्रविष्ट करा (> ०)"
+                    else if (isHi) "कृपया वैध एकड़ संख्या दर्ज करें (> 0)"
+                    else "Please enter valid landholding area (> 0)"
+                } else null
+
                 OutlinedTextField(
                     value = landArea,
-                    onValueChange = { landArea = it },
+                    onValueChange = {
+                        landArea = it
+                        isCalculated = false
+                    },
+                    isError = landAreaError != null,
+                    supportingText = {
+                        if (landAreaError != null) {
+                            Text(landAreaError, color = Color(0xFFDC2626), fontSize = 11.sp)
+                        }
+                    },
+                    trailingIcon = {
+                        if (landAreaError != null) {
+                            Icon(Icons.Default.Error, contentDescription = "Error", tint = Color(0xFFDC2626))
+                        } else if (isLandAreaValid) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = "Valid", tint = Color(0xFF059669))
+                        }
+                    },
                     singleLine = true,
+                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 )
@@ -106,7 +130,12 @@ fun YojnaCalculatorDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = { isCalculated = true },
+                    onClick = {
+                        if (isLandAreaValid) {
+                            isCalculated = true
+                        }
+                    },
+                    enabled = isLandAreaValid,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669)),
                     shape = RoundedCornerShape(8.dp)

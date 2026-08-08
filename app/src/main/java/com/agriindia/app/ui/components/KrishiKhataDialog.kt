@@ -160,6 +160,9 @@ fun KrishiKhataDialog(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
+                val isAmtValid = newAmount.toDoubleOrNull() != null && (newAmount.toDoubleOrNull() ?: 0.0) > 0
+                val isNoteValid = newNotes.trim().isNotEmpty()
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -167,7 +170,9 @@ fun KrishiKhataDialog(
                     OutlinedTextField(
                         value = newAmount,
                         onValueChange = { newAmount = it },
-                        placeholder = { Text(if (isHi) "राशि (₹)" else "Amount (₹)", fontSize = 11.sp) },
+                        placeholder = { Text(if (isHi) "राशि (₹) *" else "Amount (₹) *", fontSize = 11.sp) },
+                        isError = newAmount.isNotEmpty() && !isAmtValid,
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                         shape = RoundedCornerShape(8.dp)
@@ -175,7 +180,7 @@ fun KrishiKhataDialog(
                     OutlinedTextField(
                         value = newNotes,
                         onValueChange = { newNotes = it },
-                        placeholder = { Text(if (isHi) "विवरण (जैसे: बीज/खाद)" else "Notes (Seeds, Labor)", fontSize = 11.sp) },
+                        placeholder = { Text(if (isHi) "विवरण *" else "Notes (Seeds, Labor) *", fontSize = 11.sp) },
                         modifier = Modifier.weight(1.5f),
                         singleLine = true,
                         shape = RoundedCornerShape(8.dp)
@@ -187,7 +192,7 @@ fun KrishiKhataDialog(
                 Button(
                     onClick = {
                         val amt = newAmount.toDoubleOrNull() ?: 0.0
-                        if (amt > 0) {
+                        if (amt > 0 && isNoteValid) {
                             entries = entries + FarmExpenseEntry(
                                 id = (entries.size + 1).toString(),
                                 season = selectedSeason,
@@ -202,6 +207,7 @@ fun KrishiKhataDialog(
                             newNotes = ""
                         }
                     },
+                    enabled = isAmtValid && isNoteValid,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669)),
                     shape = RoundedCornerShape(8.dp)

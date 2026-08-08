@@ -121,10 +121,12 @@ fun KisanMitraDialog(
                         singleLine = true
                     )
                     Spacer(modifier = Modifier.width(8.dp))
+                    val isQueryValid = queryText.trim().isNotEmpty()
+
                     IconButton(
                         onClick = {
-                            if (queryText.isNotBlank()) {
-                                val userQ = queryText
+                            if (isQueryValid) {
+                                val userQ = queryText.trim()
                                 queryText = ""
                                 val reply = when (language) {
                                     AppLanguage.MARATHI -> "आपल्या प्रश्नाचे ('$userQ') उत्तर: हवामान अनुकूल आहे. पिकावर कीटकनाशक फवारणी संध्याकाळी ४ नंतर करावी."
@@ -134,12 +136,13 @@ fun KisanMitraDialog(
                                 chatMessages = chatMessages + ("Q: $userQ") + reply
                             }
                         },
+                        enabled = isQueryValid,
                         modifier = Modifier
                             .size(44.dp)
-                            .background(Color(0xFF059669), CircleShape)
+                            .background(if (isQueryValid) Color(0xFF059669) else Color(0xFFCBD5E1), CircleShape)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Send,
+                            imageVector = Icons.AutoMirrored.Filled.Send,
                             contentDescription = "Send",
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)

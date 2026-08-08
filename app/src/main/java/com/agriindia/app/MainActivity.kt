@@ -580,6 +580,14 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
         )
     }
 
+    val showSellProduceDialog by viewModel.showSellProduceDialog.collectAsState()
+    if (showSellProduceDialog) {
+        SellProduceDialog(
+            language = language,
+            onDismiss = { viewModel.toggleSellProduceDialog(false) }
+        )
+    }
+
     if (showCartSheet) {
         AlertDialog(
             onDismissRequest = { viewModel.toggleCartSheet(false) },

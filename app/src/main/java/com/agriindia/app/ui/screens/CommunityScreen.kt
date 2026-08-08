@@ -202,6 +202,10 @@ fun CommunityPostCard(post: CommunityPost, isHi: Boolean, onToggleLike: () -> Un
 fun CreatePostDialog(isHi: Boolean, onDismiss: () -> Unit, onSubmit: (String, String) -> Unit) {
     var contentText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("Pest Control") }
+    val isContentValid = contentText.trim().length >= 5
+    val contentError = if (contentText.isNotEmpty() && !isContentValid) {
+        if (isHi) "कम से कम 5 अक्षर लिखें" else "Post must be at least 5 characters"
+    } else null
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -211,10 +215,18 @@ fun CreatePostDialog(isHi: Boolean, onDismiss: () -> Unit, onSubmit: (String, St
                 OutlinedTextField(
                     value = contentText,
                     onValueChange = { contentText = it },
-                    placeholder = { Text(if (isHi) "अपनी समस्या या अनुभव लिखें..." else "Write your problem or advice...", fontSize = 12.sp) },
+                    placeholder = { Text(if (isHi) "अपनी समस्या या अनुभव लिखें... *" else "Write your problem or advice... *", fontSize = 12.sp) },
+                    isError = contentError != null,
+                    supportingText = {
+                        if (contentError != null) {
+                            Text(contentError, color = Color(0xFFDC2626), fontSize = 11.sp)
+                        } else {
+                            Text("${contentText.trim().length} chars (min 5)", fontSize = 10.sp, color = Color(0xFF64748B))
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp),
+                        .height(130.dp),
                     shape = RoundedCornerShape(8.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -232,11 +244,15 @@ fun CreatePostDialog(isHi: Boolean, onDismiss: () -> Unit, onSubmit: (String, St
         confirmButton = {
             Button(
                 onClick = {
-                    if (contentText.isNotBlank()) {
-                        onSubmit(contentText, selectedCategory)
+                    if (isContentValid) {
+                        onSubmit(contentText.trim(), selectedCategory)
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669))
+                enabled = isContentValid,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF059669),
+                    disabledContainerColor = Color(0xFF94A3B8)
+                )
             ) {
                 Text(if (isHi) "प्रकाशित करें" else "Publish Post")
             }

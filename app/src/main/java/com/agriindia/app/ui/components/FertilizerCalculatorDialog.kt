@@ -143,17 +143,41 @@ fun FertilizerCalculatorDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Acreage Input
+                // Acreage Input with Live Validation
+                val isAcresValid = acresText.toDoubleOrNull() != null && (acresText.toDoubleOrNull() ?: 0.0) > 0 && (acresText.toDoubleOrNull() ?: 0.0) <= 1000
+                val acresInputError = if (!isAcresValid) {
+                    if (isMr) "कृपया वैध एकर संख्या प्रविष्ट करा (> ० आणि <= १०००)"
+                    else if (isHi) "कृपया वैध एकड़ संख्या दर्ज करें (> 0 और <= 1000)"
+                    else "Please enter a valid acreage (> 0 and <= 1000)"
+                } else null
+
                 OutlinedTextField(
                     value = acresText,
                     onValueChange = { acresText = it },
-                    label = { Text(if (isHi) "खेत का क्षेत्रफल (एकड़ में)" else "Land Area (in Acres)") },
+                    isError = acresInputError != null,
+                    label = { Text(if (isMr) "जमिनीचे क्षेत्र (एकर मध्ये) *" else if (isHi) "खेत का क्षेत्रफल (एकड़ में) *" else "Land Area (in Acres) *") },
                     leadingIcon = {
-                        Icon(imageVector = Icons.Default.SquareFoot, contentDescription = null, tint = Color(0xFFD97706))
+                        Icon(imageVector = Icons.Default.SquareFoot, contentDescription = null, tint = if (acresInputError != null) Color(0xFFDC2626) else Color(0xFFD97706))
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    trailingIcon = {
+                        if (acresInputError != null) {
+                            Icon(Icons.Default.Error, contentDescription = "Error", tint = Color(0xFFDC2626))
+                        } else if (isAcresValid) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = "Valid", tint = Color(0xFF059669))
+                        }
+                    },
+                    supportingText = {
+                        if (acresInputError != null) {
+                            Text(acresInputError, color = Color(0xFFDC2626), fontSize = 11.sp)
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFFD97706),
+                        errorBorderColor = Color(0xFFDC2626)
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
 
