@@ -169,6 +169,11 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
     val showKisanMitra by viewModel.showKisanMitra.collectAsState()
     val showCropDoctor by viewModel.showCropDoctor.collectAsState()
     val showFertilizerCalc by viewModel.showFertilizerCalc.collectAsState()
+    val showDroneSpray by viewModel.showDroneSpray.collectAsState()
+    val showSoilHealth by viewModel.showSoilHealth.collectAsState()
+    val showPashuChikitsa by viewModel.showPashuChikitsa.collectAsState()
+    val showSolarPump by viewModel.showSolarPump.collectAsState()
+    val showKrishiKhata by viewModel.showKrishiKhata.collectAsState()
     val selectedTrendCommodity by viewModel.selectedTrendCommodity.collectAsState()
     val showYojnaCalc by viewModel.showYojnaCalculator.collectAsState()
     val showCartSheet by viewModel.showCartSheet.collectAsState()
@@ -294,7 +299,13 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                 onOpenCart = { viewModel.toggleCartSheet(true) },
                 onOpenKisanMitra = { viewModel.toggleKisanMitra(true) },
                 onOpenProfile = { authViewModel.toggleProfile(true) },
-                onOpenFertilizerCalc = { viewModel.toggleFertilizerCalculator(true) }
+                onOpenFertilizerCalc = { viewModel.toggleFertilizerCalculator(true) },
+                onOpenCropDoctor = { viewModel.toggleCropDoctor(true) },
+                onOpenDroneSpray = { viewModel.toggleDroneSpray(true) },
+                onOpenSoilHealth = { viewModel.toggleSoilHealth(true) },
+                onOpenPashuChikitsa = { viewModel.togglePashuChikitsa(true) },
+                onOpenSolarPump = { viewModel.toggleSolarPump(true) },
+                onOpenKrishiKhata = { viewModel.toggleKrishiKhata(true) }
             )
         },
         bottomBar = {
@@ -447,6 +458,41 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
         YojnaCalculatorDialog(
             language = language,
             onDismiss = { viewModel.toggleYojnaCalculator(false) }
+        )
+    }
+
+    if (showDroneSpray) {
+        DroneSprayDialog(
+            language = language,
+            onDismiss = { viewModel.toggleDroneSpray(false) }
+        )
+    }
+
+    if (showSoilHealth) {
+        SoilHealthDialog(
+            language = language,
+            onDismiss = { viewModel.toggleSoilHealth(false) }
+        )
+    }
+
+    if (showPashuChikitsa) {
+        PashuChikitsaDialog(
+            language = language,
+            onDismiss = { viewModel.togglePashuChikitsa(false) }
+        )
+    }
+
+    if (showSolarPump) {
+        SolarIrrigationDialog(
+            language = language,
+            onDismiss = { viewModel.toggleSolarPump(false) }
+        )
+    }
+
+    if (showKrishiKhata) {
+        KrishiKhataDialog(
+            language = language,
+            onDismiss = { viewModel.toggleKrishiKhata(false) }
         )
     }
 

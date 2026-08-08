@@ -148,3 +148,80 @@ data class Order(
     val timestamp: Long
 )
 
+// ---- Advanced Agri Suite Models ----
+
+data class DroneBooking(
+    val id: String,
+    val cropName: String,
+    val cropNameHi: String,
+    val acreage: Double,
+    val sprayChemical: String,
+    val sprayChemicalHi: String,
+    val scheduledDate: String,
+    val status: String, // "Confirmed", "In Progress", "Completed", "Pending Pilot"
+    val pilotName: String,
+    val pilotPhone: String,
+    val batterySlotsNeeded: Int,
+    val baseRatePerAcre: Double = 600.0,
+    val subsidyRate: Double = 0.50, // 50% Govt subsidy
+    val totalCost: Double,
+    val subsidySaved: Double
+)
+
+data class SoilHealthReport(
+    val id: String,
+    val ph: Double,
+    val nitrogenKgPerHa: Double,
+    val phosphorusKgPerHa: Double,
+    val potassiumKgPerHa: Double,
+    val organicCarbonPercent: Double,
+    val zincPpm: Double,
+    val sulphurPpm: Double,
+    val soilCondition: String, // "Acidic", "Alkaline", "Normal/Optimal"
+    val nitrogenStatus: String, // "Low", "Medium", "High"
+    val phosphorusStatus: String,
+    val potassiumStatus: String,
+    val recommendationEn: String,
+    val recommendationHi: String,
+    val ureaKgAcre: Double,
+    val dapKgAcre: Double,
+    val mopKgAcre: Double,
+    val gypsumOrLimeKgAcre: Double
+)
+
+data class LivestockDisease(
+    val diseaseName: String,
+    val diseaseNameHi: String,
+    val animalType: String, // "Cow / गाय", "Buffalo / भैंस", "Goat / बकरी"
+    val severity: String,
+    val symptoms: String,
+    val symptomsHi: String,
+    val treatment: String,
+    val treatmentHi: String,
+    val vaccineDue: String,
+    val emergencyHelpline: String = "1962 (Toll Free Pashu Chikitsa)"
+)
+
+data class SolarPumpConfig(
+    val pumpCapacityHp: Double,
+    val pumpType: String, // "Submersible DC", "Surface AC", "Submersible AC"
+    val recommendedAcreage: String,
+    val totalProjectCost: Double,
+    val centralSubsidy: Double, // 30%
+    val stateSubsidy: Double,   // 30%
+    val farmerContribution: Double, // 40%
+    val annualDieselSaving: Double, // ₹ saved vs diesel genset
+    val dailyDischargeLiters: Int
+)
+
+data class FarmExpenseEntry(
+    val id: String,
+    val season: String, // "Kharif 2026", "Rabi 2025-26", "Zaid 2026"
+    val crop: String,
+    val entryType: String, // "Expense", "Revenue"
+    val category: String, // "Seeds", "Fertilizer", "Pesticide", "Labor", "Diesel/Tractor", "Harvest Sale"
+    val amount: Double,
+    val date: String,
+    val notes: String
+)
+

@@ -109,6 +109,21 @@ class AgriViewModel(
     private val _showFertilizerCalc = MutableStateFlow(false)
     val showFertilizerCalc: StateFlow<Boolean> = _showFertilizerCalc.asStateFlow()
 
+    private val _showDroneSpray = MutableStateFlow(false)
+    val showDroneSpray: StateFlow<Boolean> = _showDroneSpray.asStateFlow()
+
+    private val _showSoilHealth = MutableStateFlow(false)
+    val showSoilHealth: StateFlow<Boolean> = _showSoilHealth.asStateFlow()
+
+    private val _showPashuChikitsa = MutableStateFlow(false)
+    val showPashuChikitsa: StateFlow<Boolean> = _showPashuChikitsa.asStateFlow()
+
+    private val _showSolarPump = MutableStateFlow(false)
+    val showSolarPump: StateFlow<Boolean> = _showSolarPump.asStateFlow()
+
+    private val _showKrishiKhata = MutableStateFlow(false)
+    val showKrishiKhata: StateFlow<Boolean> = _showKrishiKhata.asStateFlow()
+
     private val _selectedTrendCommodity = MutableStateFlow<MandiPrice?>(null)
     val selectedTrendCommodity: StateFlow<MandiPrice?> = _selectedTrendCommodity.asStateFlow()
 
@@ -324,6 +339,26 @@ class AgriViewModel(
 
     fun toggleFertilizerCalculator(show: Boolean) {
         _showFertilizerCalc.value = show
+    }
+
+    fun toggleDroneSpray(show: Boolean) {
+        _showDroneSpray.value = show
+    }
+
+    fun toggleSoilHealth(show: Boolean) {
+        _showSoilHealth.value = show
+    }
+
+    fun togglePashuChikitsa(show: Boolean) {
+        _showPashuChikitsa.value = show
+    }
+
+    fun toggleSolarPump(show: Boolean) {
+        _showSolarPump.value = show
+    }
+
+    fun toggleKrishiKhata(show: Boolean) {
+        _showKrishiKhata.value = show
     }
 
     fun selectTrendCommodity(item: MandiPrice?) {
