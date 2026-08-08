@@ -583,11 +583,11 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
     if (showCartSheet) {
         AlertDialog(
             onDismissRequest = { viewModel.toggleCartSheet(false) },
-            title = { Text(if (isHi) "शॉपिंग कार्ट" else "Shopping Cart") },
+            title = { Text(if (isMr) "खरेदी कार्ट" else if (isHi) "शॉपिंग कार्ट" else "Shopping Cart") },
             text = {
                 Column {
                     if (cartItems.isEmpty()) {
-                        Text(if (isHi) "आपका कार्ट खाली है।" else "Your cart is empty.", fontSize = 13.sp)
+                        Text(if (isMr) "आपली कार्ट रिकामी आहे." else if (isHi) "आपका कार्ट खाली है।" else "Your cart is empty.", fontSize = 13.sp)
                     } else {
                         cartItems.forEach { item ->
                             Row(
@@ -623,13 +623,13 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(if (isHi) "चेकआउट करें" else "Proceed to Checkout")
+                        Text(if (isMr) "चेकआउट करा" else if (isHi) "चेकआउट करें" else "Proceed to Checkout")
                     }
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.toggleCartSheet(false) }) {
-                    Text(if (isHi) "बंद करें" else "Close", color = Color(0xFF64748B))
+                    Text(if (isMr) "बंद करा" else if (isHi) "बंद करें" else "Close", color = Color(0xFF64748B))
                 }
             }
         )
