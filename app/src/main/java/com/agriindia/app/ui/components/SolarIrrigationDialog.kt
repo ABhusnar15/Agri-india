@@ -30,7 +30,6 @@ fun SolarIrrigationDialog(
 
     var selectedHp by remember { mutableDoubleStateOf(5.0) }
     var selectedPumpType by remember { mutableStateOf("Submersible DC") }
-    var landAcres by remember { mutableFloatStateOf(4f) }
 
     // PM-KUSUM calculation (Component B)
     // 3 HP: ~₹1,65,000, 5 HP: ~₹2,40,000, 7.5 HP: ~₹3,30,000

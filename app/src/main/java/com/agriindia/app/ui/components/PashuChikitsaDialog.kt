@@ -31,7 +31,6 @@ fun PashuChikitsaDialog(
     val isMr = language == AppLanguage.MARATHI
 
     var selectedAnimal by remember { mutableStateOf("Cow / गाय / गाय") }
-    var selectedSymptom by remember { mutableStateOf("Mastitis / थनैला / स्तनदाह") }
     var diagnosedDisease by remember { mutableStateOf<LivestockDisease?>(null) }
 
     val diseases = listOf(
@@ -160,13 +159,13 @@ fun PashuChikitsaDialog(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    text = if (isHi) "24x7 पशु एम्बुलेंस व टोल-फ्री हेल्पलाइन" else "24x7 Pashu Ambulance Helpline",
+                                    text = if (isMr) "२४x७ पशु रुग्णवाहिका व हेल्पलाइन" else if (isHi) "24x7 पशु एम्बुलेंस व टोल-फ्री हेल्पलाइन" else "24x7 Pashu Ambulance Helpline",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF991B1B)
                                 )
                                 Text(
-                                    text = "Dial 1962 (Toll Free / निःशुल्क)",
+                                    text = if (isMr) "कॉल करा १९६२ (टोल फ्री)" else "Dial 1962 (Toll Free / निःशुल्क)",
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = Color(0xFFDC2626)
