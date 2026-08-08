@@ -1,5 +1,50 @@
  package com.agriindia.app.model
 
+data class HourlyForecast(
+    val hour: String,
+    val hourHi: String,
+    val temp: Int,
+    val rainChance: Int,
+    val condition: String,
+    val humidity: Int,
+    val windSpeed: Int
+)
+
+data class AirQualityData(
+    val aqi: Int,
+    val category: String,
+    val categoryHi: String,
+    val categoryMr: String,
+    val pm25: Double,
+    val pm10: Double,
+    val statusColorHex: Long = 0xFF10B981
+)
+
+data class SprayAdvisory(
+    val isOptimal: Boolean,
+    val windowText: String,
+    val windowTextHi: String,
+    val windowTextMr: String,
+    val reason: String,
+    val reasonHi: String,
+    val reasonMr: String
+)
+
+data class SoilAgronomyData(
+    val soilTemp10cm: Double,
+    val soilMoisturePercent: Int,
+    val dewPointC: Int,
+    val evapotranspirationMm: Double
+)
+
+data class SunAstronomy(
+    val sunrise: String,
+    val sunset: String,
+    val dayLength: String,
+    val uvIndex: Int,
+    val uvCategory: String
+)
+
 data class WeatherData(
     val location: String,
     val temperature: Int,
@@ -10,7 +55,15 @@ data class WeatherData(
     val soilMoisture: Int,
     val advisory: String,
     val advisoryHi: String,
-    val weeklyForecast: List<DayForecast>
+    val weeklyForecast: List<DayForecast>,
+    val hourlyForecast: List<HourlyForecast> = emptyList(),
+    val airQuality: AirQualityData = AirQualityData(45, "Good", "उत्तम", "चांगले", 14.2, 38.5, 0xFF10B981),
+    val sprayAdvisory: SprayAdvisory = SprayAdvisory(true, "06:00 AM - 10:30 AM", "सुबह 06:00 से 10:30 बजे", "सकाळी ०६:०० ते १०:३०", "Low wind & minimal evaporation drift", "कम हवा और न्यूनतम वाष्पीकरण जोखिम", "कमी वाऱ्याचा वेग आणि उत्तम फवारणी वेळ"),
+    val soilAgronomy: SoilAgronomyData = SoilAgronomyData(23.8, 68, 19, 4.2),
+    val sunAstronomy: SunAstronomy = SunAstronomy("05:48 AM", "07:12 PM", "13h 24m", 6, "Moderate-High"),
+    val cloudCoverPercent: Int = 28,
+    val pressureHpa: Int = 1012,
+    val visibilityKm: Double = 9.5
 )
 
 data class DayForecast(
@@ -37,6 +90,21 @@ data class YojnaScheme(
     val isCentral: Boolean
 )
 
+enum class MandiTimeframe(val days: Int, val label: String, val labelHi: String, val labelMr: String) {
+    SEVEN_DAYS(7, "7 Days", "7 दिन", "७ दिवस"),
+    FIFTEEN_DAYS(15, "15 Days", "15 दिन", "१५ दिवस"),
+    THIRTY_DAYS(30, "30 Days", "30 दिन", "३० दिवस")
+}
+
+data class MandiPriceHistoryPoint(
+    val dayIndex: Int,
+    val dateLabel: String,
+    val price: Int,
+    val minPrice: Int,
+    val maxPrice: Int,
+    val arrivalVolumeTons: Double
+)
+
 data class MandiPrice(
     val id: String,
     val commodity: String,
@@ -49,7 +117,11 @@ data class MandiPrice(
     val modalPrice: Int,
     val unit: String = "Quintal",
     val priceChange: Int, // positive for increase, negative for decrease
-    val lastUpdated: String
+    val lastUpdated: String,
+    val mspPrice: Int = 2275,
+    val arrivalVolumeToday: Double = 420.0,
+    val marketSentiment: String = "Bullish / तेजी",
+    val history30Days: List<MandiPriceHistoryPoint> = emptyList()
 )
 
 data class Product(

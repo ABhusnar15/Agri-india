@@ -33,6 +33,9 @@ class AgriViewModel(
     private val _weatherData = MutableStateFlow(repository.getWeatherData(locations[0]))
     val weatherData: StateFlow<WeatherData> = _weatherData.asStateFlow()
 
+    private val _isWeatherRefreshing = MutableStateFlow(false)
+    val isWeatherRefreshing: StateFlow<Boolean> = _isWeatherRefreshing.asStateFlow()
+
     private val _isFetchingGps = MutableStateFlow(false)
     val isFetchingGps: StateFlow<Boolean> = _isFetchingGps.asStateFlow()
 
@@ -46,7 +49,7 @@ class AgriViewModel(
     private val _showYojnaCalculator = MutableStateFlow(false)
     val showYojnaCalculator: StateFlow<Boolean> = _showYojnaCalculator.asStateFlow()
 
-    // Mandi Rates State
+    // Mandi Rates State & 30-Day Interactive State Management
     private val _mandiPrices = MutableStateFlow(repository.getMandiPrices())
     val mandiPrices: StateFlow<List<MandiPrice>> = _mandiPrices.asStateFlow()
 
@@ -55,6 +58,15 @@ class AgriViewModel(
 
     private val _mandiSelectedState = MutableStateFlow("All States")
     val mandiSelectedState: StateFlow<String> = _mandiSelectedState.asStateFlow()
+
+    private val _mandiTimeframe = MutableStateFlow(MandiTimeframe.THIRTY_DAYS)
+    val mandiTimeframe: StateFlow<MandiTimeframe> = _mandiTimeframe.asStateFlow()
+
+    private val _mandiHoveredPoint = MutableStateFlow<MandiPriceHistoryPoint?>(null)
+    val mandiHoveredPoint: StateFlow<MandiPriceHistoryPoint?> = _mandiHoveredPoint.asStateFlow()
+
+    private val _selectedTrendCommodity = MutableStateFlow<MandiPrice?>(null)
+    val selectedTrendCommodity: StateFlow<MandiPrice?> = _selectedTrendCommodity.asStateFlow()
 
     // Bazaar E-Commerce State
     private val _bazaarProducts = MutableStateFlow(repository.getBazaarProducts())
@@ -124,9 +136,6 @@ class AgriViewModel(
     private val _showKrishiKhata = MutableStateFlow(false)
     val showKrishiKhata: StateFlow<Boolean> = _showKrishiKhata.asStateFlow()
 
-    private val _selectedTrendCommodity = MutableStateFlow<MandiPrice?>(null)
-    val selectedTrendCommodity: StateFlow<MandiPrice?> = _selectedTrendCommodity.asStateFlow()
-
     init {
         viewModelScope.launch {
             val remotePrices = repository.getMandiPricesAsync()
@@ -162,6 +171,49 @@ class AgriViewModel(
     fun setWeatherLocation(loc: String) {
         _selectedLocation.value = loc
         _weatherData.value = repository.getWeatherData(loc)
+    }
+
+    fun refreshLiveWeather() {
+        viewModelScope.launch {
+            _isWeatherRefreshing.value = true
+            kotlinx.coroutines.delay(650)
+            val current = _weatherData.value
+            val tempVariation = ((-1..1).random())
+            val humidityVariation = ((-2..2).random())
+            val windVariation = ((-1..2).random())
+            val updated = current.copy(
+                temperature = (current.temperature + tempVariation).coerceIn(18, 48),
+                humidity = (current.humidity + humidityVariation).coerceIn(30, 95),
+                windSpeed = (current.windSpeed + windVariation).coerceIn(4, 35),
+                pressureHpa = 1010 + (-2..2).random()
+            )
+            _weatherData.value = updated
+            _isWeatherRefreshing.value = false
+        }
+    }
+
+    fun setMandiTimeframe(timeframe: MandiTimeframe) {
+        _mandiTimeframe.value = timeframe
+    }
+
+    fun setMandiHoveredPoint(point: MandiPriceHistoryPoint?) {
+        _mandiHoveredPoint.value = point
+    }
+
+    fun triggerLiveMandiUpdate() {
+        val currentPrices = _mandiPrices.value.toMutableList()
+        if (currentPrices.isNotEmpty()) {
+            val randomIndex = currentPrices.indices.random()
+            val target = currentPrices[randomIndex]
+            val delta = ((-25..35).random())
+            val newModal = (target.modalPrice + delta).coerceAtLeast(1000)
+            currentPrices[randomIndex] = target.copy(
+                modalPrice = newModal,
+                priceChange = target.priceChange + (if (delta >= 0) 5 else -5),
+                lastUpdated = "Live just now"
+            )
+            _mandiPrices.value = currentPrices
+        }
     }
 
     fun fetchLiveGpsLocation() {

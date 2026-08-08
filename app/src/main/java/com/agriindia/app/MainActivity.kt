@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -248,7 +249,7 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                 AppLanguage.HINDI -> "ज्ञान"
                 else -> "Gyan"
             },
-            Icons.Default.MenuBook
+            Icons.AutoMirrored.Filled.MenuBook
         )
     )
 
@@ -429,14 +430,17 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                     val weatherData by viewModel.weatherData.collectAsState()
                     val selectedLocation by viewModel.selectedLocation.collectAsState()
                     val isFetchingGps by viewModel.isFetchingGps.collectAsState()
+                    val isWeatherRefreshing by viewModel.isWeatherRefreshing.collectAsState()
                     WeatherScreen(
                         language = language,
                         weatherData = weatherData,
                         locations = viewModel.locations,
                         selectedLocation = selectedLocation,
                         isFetchingGps = isFetchingGps,
+                        isRefreshing = isWeatherRefreshing,
                         onSelectLocation = { viewModel.setWeatherLocation(it) },
-                        onFetchGpsLocation = { viewModel.fetchLiveGpsLocation() }
+                        onFetchGpsLocation = { viewModel.fetchLiveGpsLocation() },
+                        onRefreshWeather = { viewModel.refreshLiveWeather() }
                     )
                 }
                 1 -> {
@@ -458,7 +462,8 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                         onSearchQueryChange = { viewModel.setMandiSearchQuery(it) },
                         selectedState = selectedState,
                         onSelectState = { viewModel.setMandiStateFilter(it) },
-                        onOpenTrend = { viewModel.selectTrendCommodity(it) }
+                        onOpenTrend = { viewModel.selectTrendCommodity(it) },
+                        onTriggerLiveUpdate = { viewModel.triggerLiveMandiUpdate() }
                     )
                 }
                 3 -> {
