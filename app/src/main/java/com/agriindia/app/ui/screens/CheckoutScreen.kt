@@ -176,7 +176,7 @@ fun CheckoutScreen(
                                     color = Color(0xFF0F172A)
                                 )
                                 Text(
-                                    text = "₹${item.product.price.toInt()} / ${item.product.unit}",
+                                    text = "₹${item.product.price.toInt()} (${item.product.category})",
                                     fontSize = 12.sp,
                                     color = Color(0xFF64748B)
                                 )

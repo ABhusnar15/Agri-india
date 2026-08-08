@@ -142,7 +142,7 @@ fun KisanMitraDialog(
                             .background(if (isQueryValid) Color(0xFF059669) else Color(0xFFCBD5E1), CircleShape)
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Send,
+                            imageVector = Icons.Default.Send,
                             contentDescription = "Send",
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
