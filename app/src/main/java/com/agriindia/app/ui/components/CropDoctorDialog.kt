@@ -115,7 +115,7 @@ fun CropDoctorDialog(
                 if (scanResult == null) {
                     // Crop selection chips
                     Text(
-                        text = if (isHi) "अपनी फसल चुनें:" else "Select Your Crop:",
+                        text = if (isMr) "आपले पीक निवडा:" else if (isHi) "अपनी फसल चुनें:" else "Select Your Crop:",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF334155)

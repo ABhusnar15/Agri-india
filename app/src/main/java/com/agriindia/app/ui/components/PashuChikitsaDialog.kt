@@ -286,7 +286,7 @@ fun PashuChikitsaDialog(
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
-                            Divider(color = Color(0xFFBBF7D0))
+                            HorizontalDivider(color = Color(0xFFBBF7D0))
                             Spacer(modifier = Modifier.height(8.dp))
 
                             Row(verticalAlignment = Alignment.CenterVertically) {

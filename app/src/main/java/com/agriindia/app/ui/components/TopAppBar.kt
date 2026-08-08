@@ -35,8 +35,6 @@ fun AgriTopAppBar(
     onOpenKrishiKhata: () -> Unit = {}
 ) {
     var showToolsMenu by remember { mutableStateOf(false) }
-    val isHi = currentLanguage == AppLanguage.HINDI
-    val isMr = currentLanguage == AppLanguage.MARATHI
 
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(

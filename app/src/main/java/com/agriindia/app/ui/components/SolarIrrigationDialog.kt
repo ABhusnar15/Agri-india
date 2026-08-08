@@ -212,11 +212,11 @@ fun SolarIrrigationDialog(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(if (isHi) "बैंक ऋण सुविधा (30%):" else "Bank Loan / Soft Financing (30%):", fontSize = 11.sp, color = Color(0xFF0284C7))
+                            Text(if (isMr) "बँक कर्ज सुविधा (३०%):" else if (isHi) "बैंक ऋण सुविधा (30%):" else "Bank Loan / Soft Financing (30%):", fontSize = 11.sp, color = Color(0xFF0284C7))
                             Text("₹${bankLoan.toInt()}", fontSize = 11.sp, color = Color(0xFF0284C7))
                         }
 
-                        Divider(modifier = Modifier.padding(vertical = 6.dp), color = Color(0xFFCBD5E1))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = Color(0xFFCBD5E1))
 
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -224,7 +224,7 @@ fun SolarIrrigationDialog(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                if (isHi) "किसान प्रत्यक्ष भुगतान (10%):" else "Farmer Direct Share (10%):",
+                                if (isMr) "शेतकरी थेट देय रक्कम (१०%):" else if (isHi) "किसान प्रत्यक्ष भुगतान (10%):" else "Farmer Direct Share (10%):",
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0F172A)

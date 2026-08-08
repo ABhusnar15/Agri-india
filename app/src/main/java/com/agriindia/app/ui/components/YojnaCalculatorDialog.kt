@@ -27,9 +27,6 @@ fun YojnaCalculatorDialog(
     var selectedCrop by remember { mutableStateOf("Wheat") }
     var isCalculated by remember { mutableStateOf(false) }
 
-    val isHi = language == AppLanguage.HINDI
-    val isMr = language == AppLanguage.MARATHI
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {

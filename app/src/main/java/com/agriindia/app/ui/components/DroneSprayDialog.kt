@@ -274,17 +274,17 @@ fun DroneSprayDialog(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(if (isHi) "सरकारी सब्सिडी छूट (-50%)" else "Govt Subsidy (-50%)", fontSize = 11.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
+                                Text(if (isMr) "शासकीय अनुदान सवलत (-५०%)" else if (isHi) "सरकारी सब्सिडी छूट (-50%)" else "Govt Subsidy (-50%)", fontSize = 11.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
                                 Text("-₹${subsidySaved.toInt()}", fontSize = 11.sp, color = Color(0xFF059669), fontWeight = FontWeight.Bold)
                             }
-                            Divider(modifier = Modifier.padding(vertical = 6.dp), color = Color(0xFFCBD5E1))
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = Color(0xFFCBD5E1))
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    if (isHi) "कुल देय राशि:" else "Total Farmer Payable:",
+                                    if (isMr) "शेतकरी देय एकूण रक्कम:" else if (isHi) "कुल देय राशि:" else "Total Farmer Payable:",
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF0F172A)

@@ -105,7 +105,7 @@ fun FertilizerCalculatorDialog(
             ) {
                 // Select Crop Dropdown
                 Text(
-                    text = if (isHi) "फसल चुनें:" else "Select Crop:",
+                    text = if (isMr) "पीक निवडा:" else if (isHi) "फसल चुनें:" else "Select Crop:",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF334155)

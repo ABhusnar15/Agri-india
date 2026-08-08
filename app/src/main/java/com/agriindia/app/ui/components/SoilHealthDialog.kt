@@ -293,11 +293,11 @@ fun SoilHealthDialog(
                             )
 
                             Spacer(modifier = Modifier.height(10.dp))
-                            Divider(color = Color(0xFFFDE68A))
+                            HorizontalDivider(color = Color(0xFFFDE68A))
                             Spacer(modifier = Modifier.height(10.dp))
 
                             Text(
-                                text = if (isHi) "प्रति एकड़ संस्तुत खाद खुराक (Kg/Acre):" else "Recommended Fertilizer Dosage (Kg/Acre):",
+                                text = if (isMr) "प्रति एकर शिफारशीत खत मात्रा (किलो/एकर):" else if (isHi) "प्रति एकड़ संस्तुत खाद खुराक (Kg/Acre):" else "Recommended Fertilizer Dosage (Kg/Acre):",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF78350F)

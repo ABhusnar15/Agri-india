@@ -30,7 +30,6 @@ fun KrishiKhataDialog(
     val isMr = language == AppLanguage.MARATHI
 
     var selectedSeason by remember { mutableStateOf("Rabi 2025-26") }
-    var newCategory by remember { mutableStateOf("Seeds") }
     var newAmount by remember { mutableStateOf("") }
     var newNotes by remember { mutableStateOf("") }
     var newType by remember { mutableStateOf("Expense") }
@@ -209,14 +208,14 @@ fun KrishiKhataDialog(
                 ) {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(if (isHi) "खाता में जोड़ें" else "Add Entry to Ledger")
+                    Text(if (isMr) "खातेवहीत जोडा" else if (isHi) "खाता में जोड़ें" else "Add Entry to Ledger")
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Entry List
                 Text(
-                    text = if (isHi) "हाल के लेन-देन:" else "Recent Transactions:",
+                    text = if (isMr) "अलीकडील व्यवहार:" else if (isHi) "हाल के लेन-देन:" else "Recent Transactions:",
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF334155)
