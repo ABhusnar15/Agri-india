@@ -34,7 +34,8 @@ fun MandiPricesScreen(
     selectedState: String,
     onSelectState: (String) -> Unit,
     onOpenTrend: (MandiPrice) -> Unit = {},
-    onTriggerLiveUpdate: () -> Unit = {}
+    onTriggerLiveUpdate: () -> Unit = {},
+    onVoiceSearch: () -> Unit = {}
 ) {
     val isHi = language == AppLanguage.HINDI
     val isMr = language == AppLanguage.MARATHI
@@ -100,7 +101,7 @@ fun MandiPricesScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Search Bar
+        // Search Bar with Mic Voice Search
         OutlinedTextField(
             value = searchQuery,
             onValueChange = onSearchQueryChange,
@@ -115,6 +116,11 @@ fun MandiPricesScreen(
                 )
             },
             leadingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null, tint = Color(0xFF059669)) },
+            trailingIcon = {
+                IconButton(onClick = onVoiceSearch) {
+                    Icon(imageVector = Icons.Default.Mic, contentDescription = "Voice Search", tint = Color(0xFF059669))
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             singleLine = true,

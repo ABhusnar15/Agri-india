@@ -186,10 +186,6 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
     val orderHistory by viewModel.orderHistory.collectAsState()
     val appliedCoupon by viewModel.appliedCoupon.collectAsState()
 
-    val isHi = language == AppLanguage.HINDI
-    val isMr = language == AppLanguage.MARATHI
-    val context = LocalContext.current
-
     val speechLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -463,7 +459,13 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                         selectedState = selectedState,
                         onSelectState = { viewModel.setMandiStateFilter(it) },
                         onOpenTrend = { viewModel.selectTrendCommodity(it) },
-                        onTriggerLiveUpdate = { viewModel.triggerLiveMandiUpdate() }
+                        onTriggerLiveUpdate = { viewModel.triggerLiveMandiUpdate() },
+                        onVoiceSearch = {
+                            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                            }
+                            speechLauncher.launch(intent)
+                        }
                     )
                 }
                 3 -> {
