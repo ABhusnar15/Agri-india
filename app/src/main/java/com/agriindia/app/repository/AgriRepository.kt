@@ -1,8 +1,28 @@
 package com.agriindia.app.repository
 
 import com.agriindia.app.model.*
+import com.google.firebase.dataconnect.FirebaseDataConnect
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 class AgriRepository {
+
+    private val dataConnect: Any? by lazy {
+        try {
+            val clazz = Class.forName("com.google.firebase.dataconnect.FirebaseDataConnect")
+            clazz.getMethod("getInstance").invoke(null)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private val firestore: FirebaseFirestore? by lazy {
+        try {
+            FirebaseFirestore.getInstance()
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     fun getWeatherLocations(): List<String> = listOf(
         "Ludhiana, Punjab",
@@ -55,15 +75,15 @@ class AgriRepository {
                 )
             )
             else -> WeatherData(
-                location = "Ludhiana, Punjab",
-                temperature = 33,
-                condition = "Sunny",
-                humidity = 65,
-                rainProbability = 15,
+                location = location,
+                temperature = 32,
+                condition = "Sunny & Warm",
+                humidity = 68,
+                rainProbability = 20,
                 windSpeed = 12,
-                soilMoisture = 70,
-                advisory = "Optimal time for first paddy weeding. Maintain 2-3 cm standing water level in fields.",
-                advisoryHi = "धान की पहली निराई के लिए उपयुक्त समय। खेतों में 2-3 सेमी पानी का स्तर बनाए रखें।",
+                soilMoisture = 72,
+                advisory = "Live GPS Location ($location): Optimal time for irrigation and crop inspection. Maintain soil moisture levels.",
+                advisoryHi = "लाइव जीपीएस स्थिति ($location): सिंचाई और फसल निरीक्षण का सही समय। मिट्टी की नमी बनाए रखें।",
                 weeklyForecast = listOf(
                     DayForecast("Mon", "सोम", 33, 24, "Sunny", 15),
                     DayForecast("Tue", "मंगल", 34, 25, "Clear", 10),
@@ -292,4 +312,87 @@ class AgriRepository {
             fullContentHi = "बेमौसम भारी बारिश, ओलावृष्टि या बाढ़ के कारण फसल के नुकसान की स्थिति में, किसानों को 72 घंटे के भीतर क्रॉप इंश्योरेंस ऐप या टोल-फ्री नंबर 14447 के माध्यम से बीमा कंपनी या कृषि अधिकारी को सूचित करना होगा।"
         )
     )
+
+    suspend fun getMandiPricesAsync(): List<MandiPrice> {
+        val fs = firestore
+        if (fs != null) {
+            try {
+                val snapshot = fs.collection("mandi_prices").get().await()
+                if (!snapshot.isEmpty) {
+                    val prices = snapshot.documents.mapNotNull { doc ->
+                        MandiPrice(
+                            id = doc.id,
+                            commodity = doc.getString("commodity") ?: doc.getString("cropName") ?: "",
+                            commodityHi = doc.getString("commodityHi") ?: doc.getString("cropNameHi") ?: "",
+                            state = doc.getString("state") ?: "",
+                            district = doc.getString("district") ?: "",
+                            mandiName = doc.getString("mandiName") ?: doc.getString("marketName") ?: "",
+                            minPrice = doc.getLong("minPrice")?.toInt() ?: 0,
+                            maxPrice = doc.getLong("maxPrice")?.toInt() ?: 0,
+                            modalPrice = doc.getLong("modalPrice")?.toInt() ?: 0,
+                            unit = doc.getString("unit") ?: doc.getString("priceUnit") ?: "Quintal",
+                            priceChange = doc.getLong("priceChange")?.toInt() ?: doc.getLong("dailyChange")?.toInt() ?: 0,
+                            lastUpdated = doc.getString("lastUpdated") ?: doc.getString("updatedTime") ?: "Recently"
+                        )
+                    }
+                    if (prices.isNotEmpty()) return prices
+                }
+            } catch (e: Exception) {
+                // Fallback to static seed data
+            }
+        }
+        return getMandiPrices()
+    }
+
+    suspend fun getCommunityPostsAsync(): List<CommunityPost> {
+        val fs = firestore
+        if (fs != null) {
+            try {
+                val snapshot = fs.collection("community_posts").get().await()
+                if (!snapshot.isEmpty) {
+                    val posts = snapshot.documents.mapNotNull { doc ->
+                        CommunityPost(
+                            id = doc.id,
+                            authorName = doc.getString("authorName") ?: "Farmer",
+                            authorState = doc.getString("authorState") ?: "India",
+                            timeAgo = doc.getString("timeAgo") ?: "Just now",
+                            category = doc.getString("category") ?: "General",
+                            content = doc.getString("content") ?: "",
+                            contentHi = doc.getString("contentHi") ?: "",
+                            likesCount = doc.getLong("likesCount")?.toInt() ?: 0,
+                            commentsCount = doc.getLong("commentsCount")?.toInt() ?: 0,
+                            isVerifiedExpert = doc.getBoolean("isVerifiedExpert") ?: false,
+                            isLiked = false,
+                            comments = emptyList()
+                        )
+                    }
+                    if (posts.isNotEmpty()) return posts
+                }
+            } catch (e: Exception) {
+                // Fallback to static seed data
+            }
+        }
+        return getCommunityPosts()
+    }
+
+    suspend fun publishCommunityPostToFirestore(post: CommunityPost) {
+        val fs = firestore ?: return
+        try {
+            val data = mapOf(
+                "authorName" to post.authorName,
+                "authorState" to post.authorState,
+                "timeAgo" to post.timeAgo,
+                "category" to post.category,
+                "content" to post.content,
+                "contentHi" to post.contentHi,
+                "likesCount" to post.likesCount,
+                "commentsCount" to post.commentsCount,
+                "isVerifiedExpert" to post.isVerifiedExpert,
+                "createdAt" to System.currentTimeMillis()
+            )
+            fs.collection("community_posts").document(post.id).set(data).await()
+        } catch (e: Exception) {
+            // Ignore if offline
+        }
+    }
 }

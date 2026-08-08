@@ -20,6 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agriindia.app.model.AppLanguage
 
+import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.filled.Science
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AgriTopAppBar(
@@ -29,7 +32,8 @@ fun AgriTopAppBar(
     onToggleLanguage: () -> Unit,
     onOpenCart: () -> Unit,
     onOpenKisanMitra: () -> Unit,
-    onOpenProfile: () -> Unit
+    onOpenProfile: () -> Unit,
+    onOpenFertilizerCalc: () -> Unit = {}
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
@@ -65,39 +69,37 @@ fun AgriTopAppBar(
             }
         },
         actions = {
-            // Language switch button
-            FilledTonalButton(
-                onClick = onToggleLanguage,
-                colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = Color(0xFF047857),
-                    contentColor = Color.White
-                ),
-                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                shape = RoundedCornerShape(20.dp)
+            // Fertilizer Calc Quick Action
+            IconButton(
+                onClick = onOpenFertilizerCalc,
+                modifier = Modifier.size(36.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Language,
-                    contentDescription = "Language",
-                    modifier = Modifier.size(16.dp),
-                    tint = Color(0xFFFDE047)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = if (currentLanguage == AppLanguage.ENGLISH) "हिंदी" else "ENG",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
+                    imageVector = Icons.Default.Science,
+                    contentDescription = "Fertilizer Calculator",
+                    tint = Color(0xFFFDE047),
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
-            IconButton(onClick = onOpenKisanMitra) {
+            // Kisan Mitra AI Quick Action
+            IconButton(
+                onClick = onOpenKisanMitra,
+                modifier = Modifier.size(36.dp)
+            ) {
                 Icon(
                     imageVector = Icons.Default.Psychology,
                     contentDescription = "Kisan Mitra AI",
-                    tint = Color(0xFFFDE047)
+                    tint = Color(0xFFFDE047),
+                    modifier = Modifier.size(20.dp)
                 )
             }
 
-            IconButton(onClick = onOpenCart) {
+            // Cart Button
+            IconButton(
+                onClick = onOpenCart,
+                modifier = Modifier.size(36.dp)
+            ) {
                 BadgedBox(
                     badge = {
                         if (cartItemCount > 0) {
@@ -105,7 +107,7 @@ fun AgriTopAppBar(
                                 containerColor = Color(0xFFD97706),
                                 contentColor = Color.White
                             ) {
-                                Text(cartItemCount.toString())
+                                Text(cartItemCount.toString(), fontSize = 10.sp)
                             }
                         }
                     }
@@ -113,15 +115,50 @@ fun AgriTopAppBar(
                     Icon(
                         imageVector = Icons.Default.ShoppingCart,
                         contentDescription = "Shopping Cart",
-                        tint = Color.White
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
 
-            // Profile button
-            IconButton(onClick = onOpenProfile) {
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // Language Switcher Pill
+            Surface(
+                onClick = onToggleLanguage,
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFF047857),
+                modifier = Modifier.height(28.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Language,
+                        contentDescription = "Language",
+                        modifier = Modifier.size(13.dp),
+                        tint = Color(0xFFFDE047)
+                    )
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(
+                        text = if (currentLanguage == AppLanguage.ENGLISH) "हिं" else "EN",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            // User Profile Avatar
+            IconButton(
+                onClick = onOpenProfile,
+                modifier = Modifier.size(36.dp)
+            ) {
                 Surface(
-                    modifier = Modifier.size(30.dp),
+                    modifier = Modifier.size(28.dp),
                     shape = CircleShape,
                     color = Color(0xFF047857)
                 ) {
@@ -129,7 +166,7 @@ fun AgriTopAppBar(
                         if (userName != null) {
                             Text(
                                 text = userName.take(1).uppercase(),
-                                fontSize = 14.sp,
+                                fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
@@ -138,7 +175,7 @@ fun AgriTopAppBar(
                                 imageVector = Icons.Default.Person,
                                 contentDescription = "Profile",
                                 tint = Color.White,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                     }

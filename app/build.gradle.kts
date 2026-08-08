@@ -67,8 +67,10 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-dataconnect:16.0.0-beta01")
 
     // Razorpay Payment Gateway
     implementation("com.razorpay:checkout:1.6.33")
@@ -76,9 +78,10 @@ dependencies {
     // DataStore Preferences (session persistence)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
-    // Coroutines
+    // Coroutines & Location Services
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+    implementation("com.google.android.gms:play-services-location:21.1.0")
 
     // Room Database (SQLite ORM)
     implementation("androidx.room:room-runtime:2.6.1")
@@ -93,5 +96,11 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("com.google.firebase:firebase-common:21.0.0")
+    }
 }
 

@@ -5,8 +5,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.agriindia.app.model.*
-import com.agriindia.app.repository.AgriRepository
-import com.agriindia.app.repository.PaymentRepository
+import com.agriindia.app.repository.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +17,7 @@ class AgriViewModel(
 
     private val repository: AgriRepository = AgriRepository()
     private val paymentRepository: PaymentRepository = PaymentRepository(application)
+    private val locationRepository: LocationRepository = LocationRepository(application)
 
     private val _language = MutableStateFlow(AppLanguage.ENGLISH)
     val language: StateFlow<AppLanguage> = _language.asStateFlow()
@@ -32,6 +32,12 @@ class AgriViewModel(
 
     private val _weatherData = MutableStateFlow(repository.getWeatherData(locations[0]))
     val weatherData: StateFlow<WeatherData> = _weatherData.asStateFlow()
+
+    private val _isFetchingGps = MutableStateFlow(false)
+    val isFetchingGps: StateFlow<Boolean> = _isFetchingGps.asStateFlow()
+
+    private val _gpsLocation = MutableStateFlow<GpsLocation?>(null)
+    val gpsLocation: StateFlow<GpsLocation?> = _gpsLocation.asStateFlow()
 
     // Yojna State
     private val _yojnas = MutableStateFlow(repository.getGovernmentSchemes())
@@ -93,9 +99,33 @@ class AgriViewModel(
     private val _selectedArticle = MutableStateFlow<Article?>(null)
     val selectedArticle: StateFlow<Article?> = _selectedArticle.asStateFlow()
 
-    // AI Helper
+    // AI Helper & Diagnostics
     private val _showKisanMitra = MutableStateFlow(false)
     val showKisanMitra: StateFlow<Boolean> = _showKisanMitra.asStateFlow()
+
+    private val _showCropDoctor = MutableStateFlow(false)
+    val showCropDoctor: StateFlow<Boolean> = _showCropDoctor.asStateFlow()
+
+    private val _showFertilizerCalc = MutableStateFlow(false)
+    val showFertilizerCalc: StateFlow<Boolean> = _showFertilizerCalc.asStateFlow()
+
+    private val _selectedTrendCommodity = MutableStateFlow<MandiPrice?>(null)
+    val selectedTrendCommodity: StateFlow<MandiPrice?> = _selectedTrendCommodity.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val remotePrices = repository.getMandiPricesAsync()
+            if (remotePrices.isNotEmpty()) {
+                _mandiPrices.value = remotePrices
+            }
+        }
+        viewModelScope.launch {
+            val remotePosts = repository.getCommunityPostsAsync()
+            if (remotePosts.isNotEmpty()) {
+                _communityPosts.value = remotePosts
+            }
+        }
+    }
 
     // Actions
     fun toggleLanguage() {
@@ -109,6 +139,19 @@ class AgriViewModel(
     fun setWeatherLocation(loc: String) {
         _selectedLocation.value = loc
         _weatherData.value = repository.getWeatherData(loc)
+    }
+
+    fun fetchLiveGpsLocation() {
+        viewModelScope.launch {
+            _isFetchingGps.value = true
+            val loc = locationRepository.fetchCurrentGpsLocation()
+            _isFetchingGps.value = false
+            if (loc != null) {
+                _gpsLocation.value = loc
+                setWeatherLocation(loc.displayLocation)
+                setMandiStateFilter(loc.stateName)
+            }
+        }
     }
 
     fun toggleYojnaCalculator(show: Boolean) {
@@ -252,6 +295,9 @@ class AgriViewModel(
             commentsCount = 0
         )
         _communityPosts.value = listOf(newPost) + _communityPosts.value
+        viewModelScope.launch {
+            repository.publishCommunityPostToFirestore(newPost)
+        }
     }
 
     fun toggleArticleBookmark(articleId: String) {
@@ -270,5 +316,17 @@ class AgriViewModel(
 
     fun toggleKisanMitra(show: Boolean) {
         _showKisanMitra.value = show
+    }
+
+    fun toggleCropDoctor(show: Boolean) {
+        _showCropDoctor.value = show
+    }
+
+    fun toggleFertilizerCalculator(show: Boolean) {
+        _showFertilizerCalc.value = show
+    }
+
+    fun selectTrendCommodity(item: MandiPrice?) {
+        _selectedTrendCommodity.value = item
     }
 }

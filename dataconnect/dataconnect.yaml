@@ -1,0 +1,12 @@
+specVersion: 'v1alpha'
+serviceId: 'agri-india-service'
+location: 'asia-south1'
+schema:
+  source: './schema'
+  datasource:
+    postgresql:
+      database: 'fdcdb'
+      cloudSql:
+        instanceId: 'agri-india-sql-instance'
+connectorDirs:
+  - './connector'

@@ -1,6 +1,8 @@
 package com.agriindia.app.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,6 +12,8 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Storefront
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,7 +32,8 @@ fun MandiPricesScreen(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     selectedState: String,
-    onSelectState: (String) -> Unit
+    onSelectState: (String) -> Unit,
+    onOpenTrend: (MandiPrice) -> Unit = {}
 ) {
     val isHi = language == AppLanguage.HINDI
 
@@ -57,10 +62,12 @@ fun MandiPricesScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // State Filter Chips
+        // State Filter Chips (Horizontally Scrollable)
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
         ) {
             listOf("All States", "Punjab", "Maharashtra", "Karnataka", "Gujarat", "Rajasthan").forEach { state ->
                 FilterChip(
@@ -91,14 +98,18 @@ fun MandiPricesScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             items(filteredPrices) { mandi ->
-                MandiPriceCard(mandi = mandi, isHi = isHi)
+                MandiPriceCard(mandi = mandi, isHi = isHi, onOpenTrend = { onOpenTrend(mandi) })
             }
         }
     }
 }
 
 @Composable
-fun MandiPriceCard(mandi: MandiPrice, isHi: Boolean) {
+fun MandiPriceCard(
+    mandi: MandiPrice,
+    isHi: Boolean,
+    onOpenTrend: () -> Unit = {}
+) {
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(2.dp),
@@ -181,6 +192,30 @@ fun MandiPriceCard(mandi: MandiPrice, isHi: Boolean) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = if (isHi) "अधिकतम भाव" else "Max Price", fontSize = 10.sp, color = Color(0xFF64748B))
                     Text(text = "₹${mandi.maxPrice}", fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 30-Day Trend Action Button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = onOpenTrend) {
+                    Icon(
+                        imageVector = Icons.Default.TrendingUp,
+                        contentDescription = null,
+                        tint = Color(0xFF059669),
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (isHi) "30-दिन रुझान ग्राफ 📈" else "30-Day Rate Trend 📈",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF059669)
+                    )
                 }
             }
         }

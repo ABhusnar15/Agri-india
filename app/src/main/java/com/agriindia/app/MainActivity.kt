@@ -1,8 +1,12 @@
 package com.agriindia.app
 
+import android.content.Intent
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,9 +25,7 @@ import androidx.compose.ui.unit.sp
 import com.agriindia.app.model.AppLanguage
 import com.agriindia.app.model.AuthState
 import com.agriindia.app.model.PaymentResult
-import com.agriindia.app.ui.components.AgriTopAppBar
-import com.agriindia.app.ui.components.KisanMitraDialog
-import com.agriindia.app.ui.components.YojnaCalculatorDialog
+import com.agriindia.app.ui.components.*
 import com.agriindia.app.ui.screens.*
 import com.agriindia.app.viewmodel.AgriViewModel
 import com.agriindia.app.viewmodel.AuthViewModel
@@ -165,6 +167,9 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
     val selectedTab by viewModel.selectedTab.collectAsState()
     val cartItems by viewModel.cartItems.collectAsState()
     val showKisanMitra by viewModel.showKisanMitra.collectAsState()
+    val showCropDoctor by viewModel.showCropDoctor.collectAsState()
+    val showFertilizerCalc by viewModel.showFertilizerCalc.collectAsState()
+    val selectedTrendCommodity by viewModel.selectedTrendCommodity.collectAsState()
     val showYojnaCalc by viewModel.showYojnaCalculator.collectAsState()
     val showCartSheet by viewModel.showCartSheet.collectAsState()
     val showCheckout by viewModel.showCheckout.collectAsState()
@@ -177,6 +182,18 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
 
     val isHi = language == AppLanguage.HINDI
     val context = LocalContext.current
+
+    val speechLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            val spoken = matches?.firstOrNull()
+            if (!spoken.isNullOrBlank()) {
+                viewModel.setMandiSearchQuery(spoken)
+            }
+        }
+    }
 
     val navItems = listOf(
         NavItem(if (isHi) "मौसम" else "Weather", Icons.Default.WbSunny),
@@ -276,23 +293,48 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                 onToggleLanguage = { viewModel.toggleLanguage() },
                 onOpenCart = { viewModel.toggleCartSheet(true) },
                 onOpenKisanMitra = { viewModel.toggleKisanMitra(true) },
-                onOpenProfile = { authViewModel.toggleProfile(true) }
+                onOpenProfile = { authViewModel.toggleProfile(true) },
+                onOpenFertilizerCalc = { viewModel.toggleFertilizerCalculator(true) }
             )
         },
         bottomBar = {
-            NavigationBar(containerColor = Color.White) {
-                navItems.forEachIndexed { index, item ->
-                    NavigationBarItem(
-                        selected = selectedTab == index,
-                        onClick = { viewModel.selectTab(index) },
-                        icon = { Icon(imageVector = item.icon, contentDescription = item.label) },
-                        label = { Text(item.label, fontSize = 10.sp) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = Color(0xFF059669),
-                            selectedTextColor = Color(0xFF059669),
-                            indicatorColor = Color(0xFFDCFCE7)
+            Surface(
+                shadowElevation = 8.dp,
+                color = Color.White
+            ) {
+                NavigationBar(
+                    containerColor = Color.White,
+                    tonalElevation = 0.dp,
+                    modifier = Modifier.height(62.dp)
+                ) {
+                    navItems.forEachIndexed { index, item ->
+                        NavigationBarItem(
+                            selected = selectedTab == index,
+                            onClick = { viewModel.selectTab(index) },
+                            icon = {
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = item.label,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
+                            label = {
+                                Text(
+                                    text = item.label,
+                                    fontSize = 10.sp,
+                                    fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Medium
+                                )
+                            },
+                            alwaysShowLabel = true,
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = Color(0xFF059669),
+                                selectedTextColor = Color(0xFF059669),
+                                indicatorColor = Color(0xFFDCFCE7),
+                                unselectedIconColor = Color(0xFF64748B),
+                                unselectedTextColor = Color(0xFF64748B)
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
@@ -302,12 +344,15 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                 0 -> {
                     val weatherData by viewModel.weatherData.collectAsState()
                     val selectedLocation by viewModel.selectedLocation.collectAsState()
+                    val isFetchingGps by viewModel.isFetchingGps.collectAsState()
                     WeatherScreen(
                         language = language,
                         weatherData = weatherData,
                         locations = viewModel.locations,
                         selectedLocation = selectedLocation,
-                        onSelectLocation = { viewModel.setWeatherLocation(it) }
+                        isFetchingGps = isFetchingGps,
+                        onSelectLocation = { viewModel.setWeatherLocation(it) },
+                        onFetchGpsLocation = { viewModel.fetchLiveGpsLocation() }
                     )
                 }
                 1 -> {
@@ -328,7 +373,8 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                         searchQuery = searchQuery,
                         onSearchQueryChange = { viewModel.setMandiSearchQuery(it) },
                         selectedState = selectedState,
-                        onSelectState = { viewModel.setMandiStateFilter(it) }
+                        onSelectState = { viewModel.setMandiStateFilter(it) },
+                        onOpenTrend = { viewModel.selectTrendCommodity(it) }
                     )
                 }
                 3 -> {
@@ -368,6 +414,28 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
     }
 
     // Dialogs & Sheets
+    if (showCropDoctor) {
+        CropDoctorDialog(
+            language = language,
+            onDismiss = { viewModel.toggleCropDoctor(false) }
+        )
+    }
+
+    if (showFertilizerCalc) {
+        FertilizerCalculatorDialog(
+            language = language,
+            onDismiss = { viewModel.toggleFertilizerCalculator(false) }
+        )
+    }
+
+    selectedTrendCommodity?.let { item ->
+        MandiTrendDialog(
+            language = language,
+            item = item,
+            onDismiss = { viewModel.selectTrendCommodity(null) }
+        )
+    }
+
     if (showKisanMitra) {
         KisanMitraDialog(
             language = language,

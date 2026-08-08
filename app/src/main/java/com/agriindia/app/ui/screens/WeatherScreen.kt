@@ -1,5 +1,8 @@
 package com.agriindia.app.ui.screens
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -28,10 +31,22 @@ fun WeatherScreen(
     weatherData: WeatherData,
     locations: List<String>,
     selectedLocation: String,
-    onSelectLocation: (String) -> Unit
+    isFetchingGps: Boolean = false,
+    onSelectLocation: (String) -> Unit,
+    onFetchGpsLocation: () -> Unit = {}
 ) {
     val isHi = language == AppLanguage.HINDI
     var expandedDropdown by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (granted) {
+            onFetchGpsLocation()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -82,16 +97,34 @@ fun WeatherScreen(
             }
 
             AssistChip(
-                onClick = {},
-                label = { Text("Live GPS", fontSize = 10.sp) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.GpsFixed,
-                        contentDescription = null,
-                        modifier = Modifier.size(12.dp),
-                        tint = Color(0xFF059669)
+                onClick = {
+                    permissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
                     )
-                }
+                },
+                label = { Text(if (isFetchingGps) "Locating..." else "Live GPS", fontSize = 10.sp) },
+                leadingIcon = {
+                    if (isFetchingGps) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(12.dp),
+                            color = Color(0xFF059669),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.GpsFixed,
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp),
+                            tint = Color(0xFF059669)
+                        )
+                    }
+                },
+                colors = AssistChipDefaults.assistChipColors(
+                    containerColor = Color(0xFFECFDF5)
+                )
             )
         }
 
