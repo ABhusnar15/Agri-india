@@ -50,6 +50,25 @@
 
 ---
 
+## 📱 Application Screenshots & UI Showcase
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><b>🛰️ Live Weather & Spray Advisory</b></td>
+      <td align="center"><b>📊 Mandi Prices & 30-Day Analytics</b></td>
+      <td align="center"><b>🛒 Checkout & Razorpay Gateway</b></td>
+    </tr>
+    <tr>
+      <td><img src="docs/images/agri_weather_screen.jpg" width="280" alt="Live Weather Screen"/></td>
+      <td><img src="docs/images/agri_mandi_screen.jpg" width="280" alt="Mandi Market Prices Screen"/></td>
+      <td><img src="docs/images/agri_bazaar_checkout_screen.jpg" width="280" alt="Checkout Razorpay Gateway Screen"/></td>
+    </tr>
+  </table>
+</div>
+
+---
+
 ## 🛠️ Tech Stack & Architecture
 
 AgriIndia follows modern Android development best practices based on **Clean Architecture** and **MVVM Pattern**:
