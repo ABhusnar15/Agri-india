@@ -297,13 +297,23 @@ class AgriViewModel(
         }
     }
 
-    fun initiatePayment(activity: Activity, user: User?) {
+    private val _razorpayKey = MutableStateFlow(PaymentRepository.RAZORPAY_KEY)
+    val razorpayKey: StateFlow<String> = _razorpayKey.asStateFlow()
+
+    fun setRazorpayKey(key: String) {
+        _razorpayKey.value = key.trim()
+        PaymentRepository.RAZORPAY_KEY = key.trim()
+    }
+
+    fun initiatePayment(activity: Activity, user: User?, customKey: String? = null) {
         val total = calculateCartTotal()
+        val keyToUse = customKey?.takeIf { it.isNotBlank() } ?: _razorpayKey.value
         paymentRepository.initiatePayment(
             activity = activity,
             amount = total,
             orderId = "ORD-${System.currentTimeMillis()}",
-            user = user
+            user = user,
+            customKey = keyToUse
         )
     }
 

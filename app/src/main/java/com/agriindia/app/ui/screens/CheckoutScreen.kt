@@ -29,9 +29,11 @@ fun CheckoutScreen(
     language: AppLanguage,
     cartItems: List<CartItem>,
     appliedCoupon: String?,
+    razorpayKey: String = "rzp_test_XXXXXXXXX",
     onUpdateQuantity: (String, Int) -> Unit,
     onApplyCoupon: (String) -> Boolean,
-    onProceedPayment: () -> Unit,
+    onUpdateRazorpayKey: (String) -> Unit = {},
+    onProceedPayment: (selectedMethod: String, keyToUse: String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
@@ -42,6 +44,8 @@ fun CheckoutScreen(
     var deliveryAddress by remember { mutableStateOf("") }
     var deliveryPincode by remember { mutableStateOf("") }
     var deliveryPhone by remember { mutableStateOf("") }
+    var selectedPaymentMethod by remember { mutableStateOf("RAZORPAY") } // "RAZORPAY", "UPI", "COD"
+    var inputRazorpayKey by remember(razorpayKey) { mutableStateOf(razorpayKey) }
     var hasAttemptedSubmit by remember { mutableStateOf(false) }
 
     val subtotal = cartItems.sumOf { it.product.price * it.quantity }
@@ -442,6 +446,133 @@ fun CheckoutScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Payment Gateway Selection & Key Config Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(2.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.CreditCard,
+                            contentDescription = null,
+                            tint = Color(0xFF059669),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (isMr) "पेमेंट पर्याय निवडा" else if (isHi) "भुगतान का प्रकार चुनें" else "Select Payment Gateway Method",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF0F172A)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Option 1: Razorpay
+                    Surface(
+                        onClick = { selectedPaymentMethod = "RAZORPAY" },
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (selectedPaymentMethod == "RAZORPAY") Color(0xFFECFDF5) else Color(0xFFF8FAFC),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            if (selectedPaymentMethod == "RAZORPAY") Color(0xFF059669) else Color(0xFFE2E8F0)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = selectedPaymentMethod == "RAZORPAY",
+                                onClick = { selectedPaymentMethod = "RAZORPAY" },
+                                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF059669))
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Razorpay Gateway (Cards / UPI / NetBanking)",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = Color(0xFF0F172A)
+                                )
+                                Text(
+                                    text = if (isMr) "सर्व भारतीय बँका आणि UPI अॅप्स वापरून सुरक्षित देयक" else if (isHi) "सभी भारतीय बैंकों और UPI ऐप्स के साथ सुरक्षित भुगतान" else "Instant & Secure via Google Pay, PhonePe, Cards, NetBanking",
+                                    fontSize = 11.sp,
+                                    color = Color(0xFF64748B)
+                                )
+                            }
+                        }
+                    }
+
+                    if (selectedPaymentMethod == "RAZORPAY") {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        OutlinedTextField(
+                            value = inputRazorpayKey,
+                            onValueChange = {
+                                inputRazorpayKey = it
+                                onUpdateRazorpayKey(it)
+                            },
+                            label = { Text("Razorpay Key ID (rzp_test_...)") },
+                            placeholder = { Text("rzp_test_XXXXXXXXX") },
+                            leadingIcon = { Icon(Icons.Default.VpnKey, contentDescription = null, tint = Color(0xFF059669)) },
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color(0xFF059669)),
+                            modifier = Modifier.fillMaxWidth(),
+                            supportingText = {
+                                Text("Enter your Razorpay Test Key ID to test live checkout", fontSize = 10.sp, color = Color(0xFF64748B))
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Option 2: Cash on Delivery
+                    Surface(
+                        onClick = { selectedPaymentMethod = "COD" },
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (selectedPaymentMethod == "COD") Color(0xFFECFDF5) else Color(0xFFF8FAFC),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            if (selectedPaymentMethod == "COD") Color(0xFF059669) else Color(0xFFE2E8F0)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = selectedPaymentMethod == "COD",
+                                onClick = { selectedPaymentMethod = "COD" },
+                                colors = RadioButtonDefaults.colors(selectedColor = Color(0xFF059669))
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = if (isMr) "पे डिलिव्हरीच्या वेळी (Cash on Delivery)" else if (isHi) "कैश ऑन डिलीवरी (COD)" else "Cash on Delivery (COD)",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = Color(0xFF0F172A)
+                                )
+                                Text(
+                                    text = if (isMr) "मालाची डिलिव्हरी झाल्यावर रोख रक्कम द्या" else if (isHi) "सामान मिलने पर नकद भुगतान करें" else "Pay cash when your order arrives at your farm/home",
+                                    fontSize = 11.sp,
+                                    color = Color(0xFF64748B)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             // Price summary
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -519,7 +650,7 @@ fun CheckoutScreen(
                 onClick = {
                     hasAttemptedSubmit = true
                     if (isFormValid) {
-                        onProceedPayment()
+                        onProceedPayment(selectedPaymentMethod, inputRazorpayKey)
                     }
                 },
                 enabled = cartItems.isNotEmpty(),
@@ -534,13 +665,17 @@ fun CheckoutScreen(
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Default.Payment,
+                    imageVector = if (selectedPaymentMethod == "COD") Icons.Default.LocalShipping else Icons.Default.Payment,
                     contentDescription = null,
                     modifier = Modifier.size(22.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = if (isMr) "₹${total.toInt()} सुरक्षित पेमेंट करा" else if (isHi) "₹${total.toInt()} भुगतान करें" else "Pay ₹${total.toInt()} Now",
+                    text = if (selectedPaymentMethod == "COD") {
+                        if (isMr) "ऑर्डरची पुष्टी करा (₹${total.toInt()} COD)" else if (isHi) "ऑर्डर की पुष्टि करें (₹${total.toInt()} COD)" else "Place Order (₹${total.toInt()} COD)"
+                    } else {
+                        if (isMr) "₹${total.toInt()} सुरक्षित पेमेंट करा" else if (isHi) "₹${total.toInt()} भुगतान करें" else "Pay ₹${total.toInt()} Now"
+                    },
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold
                 )

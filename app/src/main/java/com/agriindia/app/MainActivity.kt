@@ -271,16 +271,24 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
 
     // Checkout screen overlay
     if (showCheckout) {
+        val razorpayKey by viewModel.razorpayKey.collectAsState()
         CheckoutScreen(
             language = language,
             cartItems = cartItems,
             appliedCoupon = appliedCoupon,
+            razorpayKey = razorpayKey,
             onUpdateQuantity = { productId, delta -> viewModel.updateCartQuantity(productId, delta) },
             onApplyCoupon = { code -> viewModel.applyCoupon(code) },
-            onProceedPayment = {
-                val activity = context as? android.app.Activity
-                if (activity != null) {
-                    viewModel.initiatePayment(activity, currentUser)
+            onUpdateRazorpayKey = { key -> viewModel.setRazorpayKey(key) },
+            onProceedPayment = { selectedMethod, keyToUse ->
+                if (selectedMethod == "COD") {
+                    val userId = currentUser?.uid ?: ""
+                    viewModel.onPaymentSuccess("COD-${System.currentTimeMillis()}", userId)
+                } else {
+                    val activity = context as? android.app.Activity
+                    if (activity != null) {
+                        viewModel.initiatePayment(activity, currentUser, customKey = keyToUse)
+                    }
                 }
             },
             onDismiss = { viewModel.toggleCheckout(false) }

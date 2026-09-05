@@ -16,7 +16,7 @@ class PaymentRepository(private val context: Context? = null) {
     private val orderDao by lazy { context?.let { AppDatabase.getDatabase(it).orderDao() } }
 
     companion object {
-        const val RAZORPAY_KEY = "rzp_test_XXXXXXXXX"
+        var RAZORPAY_KEY = "rzp_test_XXXXXXXXX"
     }
 
     fun initiatePayment(
@@ -24,22 +24,25 @@ class PaymentRepository(private val context: Context? = null) {
         amount: Double,
         orderId: String,
         user: User?,
-        description: String = "AgriIndia Bazaar Purchase"
+        description: String = "AgriIndia Bazaar Purchase",
+        customKey: String? = null
     ) {
         val checkout = Checkout()
-        checkout.setKeyID(RAZORPAY_KEY)
+        val keyToUse = customKey?.takeIf { it.isNotBlank() } ?: RAZORPAY_KEY
+        checkout.setKeyID(keyToUse)
 
         try {
             val options = org.json.JSONObject().apply {
                 put("name", "AgriIndia Bazaar")
                 put("description", description)
-                put("order_id", "") // Server-generated order ID in production
                 put("currency", "INR")
-                put("amount", (amount * 100).toLong()) // Razorpay expects paise
+                put("amount", (amount * 100).toLong()) // Razorpay expects amount in paise
 
                 val prefill = org.json.JSONObject().apply {
-                    put("email", user?.email ?: "")
-                    put("contact", user?.phone ?: "")
+                    val emailStr = user?.email?.takeIf { it.isNotBlank() } ?: "farmer@agriindia.app"
+                    val phoneStr = user?.phone?.takeIf { it.isNotBlank() } ?: "9876543210"
+                    put("email", emailStr)
+                    put("contact", phoneStr)
                 }
                 put("prefill", prefill)
 
@@ -47,8 +50,6 @@ class PaymentRepository(private val context: Context? = null) {
                     put("color", "#059669")
                 }
                 put("theme", theme)
-
-                put("image", "https://i.imgur.com/3g7nmJC.png") // App logo placeholder
             }
 
             checkout.open(activity, options)

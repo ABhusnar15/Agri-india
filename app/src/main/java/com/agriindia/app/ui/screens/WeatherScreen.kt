@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agriindia.app.model.AppLanguage
@@ -82,7 +83,10 @@ fun WeatherScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f, fill = false)
+            ) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
@@ -98,15 +102,18 @@ fun WeatherScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                         color = Color(0xFF0F172A),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.menuAnchor()
                     )
                     ExposedDropdownMenu(
                         expanded = expandedDropdown,
                         onDismissRequest = { expandedDropdown = false }
                     ) {
-                        locations.forEach { loc ->
+                        val allLocations = if (locations.contains(selectedLocation)) locations else listOf(selectedLocation) + locations
+                        allLocations.forEach { loc ->
                             DropdownMenuItem(
-                                text = { Text(loc) },
+                                text = { Text(loc, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                                 onClick = {
                                     onSelectLocation(loc)
                                     expandedDropdown = false
@@ -117,7 +124,12 @@ fun WeatherScreen(
                 }
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 // Live Satellite Refresh Button
                 IconButton(
                     onClick = onRefreshWeather,
@@ -144,7 +156,8 @@ fun WeatherScreen(
                     label = {
                         Text(
                             if (isFetchingGps) "GPS..." else if (isMr) "थेट GPS" else if (isHi) "लाइव GPS" else "Live GPS",
-                            fontSize = 10.sp
+                            fontSize = 10.sp,
+                            maxLines = 1
                         )
                     },
                     leadingIcon = {
