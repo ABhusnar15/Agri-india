@@ -1,20 +1,10 @@
 package com.agriindia.app.repository
 
 import com.agriindia.app.model.*
-import com.google.firebase.dataconnect.FirebaseDataConnect
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class AgriRepository {
-
-    private val dataConnect: Any? by lazy {
-        try {
-            val clazz = Class.forName("com.google.firebase.dataconnect.FirebaseDataConnect")
-            clazz.getMethod("getInstance").invoke(null)
-        } catch (e: Exception) {
-            null
-        }
-    }
 
     private val firestore: FirebaseFirestore? by lazy {
         try {

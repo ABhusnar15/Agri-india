@@ -1,5 +1,0 @@
-connectorId: 'agri-connector'
-generate:
-  kotlinSdk:
-    outputDir: '../app/src/main/java/com/agriindia/app/dataconnect'
-    package: 'com.agriindia.app.dataconnect'
