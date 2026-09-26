@@ -41,6 +41,9 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Initialize Firebase Suite (Auth, Firestore, Storage, Analytics, Functions)
+        com.agriindia.app.data.FirebaseManager.initialize(applicationContext)
+
         // Pre-fetch Razorpay payment methods
         Checkout.preload(applicationContext)
 
@@ -180,6 +183,7 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
     val showCartSheet by viewModel.showCartSheet.collectAsState()
     val showCheckout by viewModel.showCheckout.collectAsState()
     val showProfile by authViewModel.showProfile.collectAsState()
+    val showAdminDashboard by viewModel.showAdminDashboard.collectAsState()
     val showOrderConfirmation by viewModel.showOrderConfirmation.collectAsState()
     val paymentResult by viewModel.paymentResult.collectAsState()
     val currentUser by authViewModel.currentUser.collectAsState()
@@ -264,7 +268,35 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
             user = currentUser,
             orders = orderHistory,
             onLogout = { authViewModel.logout() },
+            onOpenAdminDashboard = { viewModel.toggleAdminDashboard(true) },
             onDismiss = { authViewModel.toggleProfile(false) }
+        )
+        return
+    }
+
+    // Admin Dashboard screen overlay
+    if (showAdminDashboard) {
+        val mandiPrices by viewModel.mandiPrices.collectAsState()
+        val products by viewModel.bazaarProducts.collectAsState()
+        val yojnas by viewModel.yojnas.collectAsState()
+        val communityPosts by viewModel.communityPosts.collectAsState()
+
+        AdminDashboardScreen(
+            language = language,
+            mandiPrices = mandiPrices,
+            products = products,
+            yojnas = yojnas,
+            orders = orderHistory,
+            communityPosts = communityPosts,
+            onAddMandiPrice = { viewModel.addMandiPrice(it) },
+            onDeleteMandiPrice = { viewModel.deleteMandiPrice(it) },
+            onAddProduct = { viewModel.addProduct(it) },
+            onDeleteProduct = { viewModel.deleteProduct(it) },
+            onAddYojna = { viewModel.addYojna(it) },
+            onDeleteYojna = { viewModel.deleteYojna(it) },
+            onDeleteCommunityPost = { viewModel.deleteCommunityPost(it) },
+            onUpdateOrderStatus = { id, status -> viewModel.updateOrderStatus(id, status) },
+            onDismiss = { viewModel.toggleAdminDashboard(false) }
         )
         return
     }
@@ -387,7 +419,8 @@ fun AgriIndiaAppContent(viewModel: AgriViewModel, authViewModel: AuthViewModel) 
                 onOpenSoilHealth = { viewModel.toggleSoilHealth(true) },
                 onOpenPashuChikitsa = { viewModel.togglePashuChikitsa(true) },
                 onOpenSolarPump = { viewModel.toggleSolarPump(true) },
-                onOpenKrishiKhata = { viewModel.toggleKrishiKhata(true) }
+                onOpenKrishiKhata = { viewModel.toggleKrishiKhata(true) },
+                onOpenAdminDashboard = { viewModel.toggleAdminDashboard(true) }
             )
         },
         bottomBar = {

@@ -78,8 +78,10 @@ class AuthRepository(private val context: Context) {
                         profileImageUrl = null
                     )
                     userDao.insertUser(entity)
+                    val userModel = entity.toUserModel()
+                    syncUserToFirestore(userModel)
                     prefs.edit().putString("logged_in_uid", firebaseUser.uid).apply()
-                    return@withContext Result.success(entity.toUserModel())
+                    return@withContext Result.success(userModel)
                 }
             } catch (e: Exception) {
                 // If email already exists in Firebase, return error; else fallback to Room
@@ -115,6 +117,21 @@ class AuthRepository(private val context: Context) {
     }
 
     suspend fun signIn(email: String, password: String): Result<User> = withContext(Dispatchers.IO) {
+        val cleanEmail = email.trim().lowercase()
+
+        // Pre-configured Admin User Credentials
+        if ((cleanEmail == "abhusnar15@g-mail.com" || cleanEmail == "abhusnar15@gmail.com") && password == "Pass@123") {
+            val adminUser = User(
+                uid = "admin_super_01",
+                name = "Abhusnar Super Admin",
+                email = "abhusnar15@g-mail.com",
+                phone = "9823000000",
+                state = "Maharashtra"
+            )
+            prefs.edit().putString("logged_in_uid", adminUser.uid).apply()
+            return@withContext Result.success(adminUser)
+        }
+
         // Try Firebase Auth first
         val auth = firebaseAuth
         if (auth != null) {
@@ -170,6 +187,47 @@ class AuthRepository(private val context: Context) {
                 return@withContext Result.failure(Exception("INVALID_EMAIL"))
             }
             Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun syncUserToFirestore(user: User) = withContext(Dispatchers.IO) {
+        val db = com.agriindia.app.data.FirebaseManager.db ?: return@withContext
+        try {
+            val userMap = hashMapOf(
+                "uid" to user.uid,
+                "name" to user.name,
+                "email" to user.email,
+                "phone" to user.phone,
+                "state" to user.state,
+                "profileImageUrl" to (user.profileImageUrl ?: ""),
+                "lastActive" to System.currentTimeMillis()
+            )
+            db.collection("users").document(user.uid).set(userMap).await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    suspend fun signInWithPhoneCredential(credential: com.google.firebase.auth.PhoneAuthCredential): Result<User> = withContext(Dispatchers.IO) {
+        val auth = firebaseAuth ?: return@withContext Result.failure(Exception("Firebase Auth not initialized"))
+        try {
+            val authResult = auth.signInWithCredential(credential).await()
+            val firebaseUser = authResult.user
+            if (firebaseUser != null) {
+                val userModel = User(
+                    uid = firebaseUser.uid,
+                    name = firebaseUser.displayName ?: "Kisan Farmer",
+                    email = firebaseUser.email ?: "",
+                    phone = firebaseUser.phoneNumber ?: "",
+                    state = "Punjab"
+                )
+                syncUserToFirestore(userModel)
+                prefs.edit().putString("logged_in_uid", firebaseUser.uid).apply()
+                return@withContext Result.success(userModel)
+            }
+            Result.failure(Exception("Failed to verify Phone OTP"))
         } catch (e: Exception) {
             Result.failure(e)
         }

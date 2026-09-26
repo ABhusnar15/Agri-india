@@ -29,6 +29,7 @@ fun ProfileScreen(
     user: User?,
     orders: List<Order>,
     onLogout: () -> Unit,
+    onOpenAdminDashboard: (() -> Unit)? = null,
     onDismiss: () -> Unit
 ) {
     val isHi = language == AppLanguage.HINDI
@@ -101,6 +102,56 @@ fun ProfileScreen(
                     fontSize = 13.sp,
                     color = Color(0xFFD1FAE5)
                 )
+            }
+        }
+
+        if (onOpenAdminDashboard != null) {
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(2.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            color = Color(0xFFDCFCE7),
+                            shape = CircleShape,
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.AdminPanelSettings, contentDescription = null, tint = Color(0xFF059669), modifier = Modifier.size(24.dp))
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text("AgriIndia Admin Portal", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color(0xFF0F172A))
+                            Text("Manage rates, catalog, schemes & orders", fontSize = 11.sp, color = Color(0xFF64748B))
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            onDismiss()
+                            onOpenAdminDashboard()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF059669)),
+                        shape = RoundedCornerShape(10.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Text("Open", fontSize = 12.sp)
+                    }
+                }
             }
         }
 

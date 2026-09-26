@@ -32,7 +32,8 @@ fun AgriTopAppBar(
     onOpenSoilHealth: () -> Unit = {},
     onOpenPashuChikitsa: () -> Unit = {},
     onOpenSolarPump: () -> Unit = {},
-    onOpenKrishiKhata: () -> Unit = {}
+    onOpenKrishiKhata: () -> Unit = {},
+    onOpenAdminDashboard: () -> Unit = {}
 ) {
     var showToolsMenu by remember { mutableStateOf(false) }
 
@@ -101,6 +102,25 @@ fun AgriTopAppBar(
                     onDismissRequest = { showToolsMenu = false },
                     modifier = Modifier.background(Color.White)
                 ) {
+                    DropdownMenuItem(
+                        text = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.AdminPanelSettings, contentDescription = null, tint = Color(0xFF059669), modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "👑 Admin Control Center",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF059669)
+                                )
+                            }
+                        },
+                        onClick = {
+                            showToolsMenu = false
+                            onOpenAdminDashboard()
+                        }
+                    )
+                    HorizontalDivider(color = Color(0xFFF1F5F9))
                     DropdownMenuItem(
                         text = {
                             Row(verticalAlignment = Alignment.CenterVertically) {

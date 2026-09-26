@@ -136,6 +136,9 @@ class AgriViewModel(
     private val _showKrishiKhata = MutableStateFlow(false)
     val showKrishiKhata: StateFlow<Boolean> = _showKrishiKhata.asStateFlow()
 
+    private val _showAdminDashboard = MutableStateFlow(false)
+    val showAdminDashboard: StateFlow<Boolean> = _showAdminDashboard.asStateFlow()
+
     init {
         viewModelScope.launch {
             val remotePrices = repository.getMandiPricesAsync()
@@ -434,4 +437,44 @@ class AgriViewModel(
     fun selectTrendCommodity(item: MandiPrice?) {
         _selectedTrendCommodity.value = item
     }
+
+    // ---- Admin Dashboard Functions ----
+    fun toggleAdminDashboard(show: Boolean) {
+        _showAdminDashboard.value = show
+    }
+
+    fun addMandiPrice(item: MandiPrice) {
+        _mandiPrices.value = listOf(item) + _mandiPrices.value
+    }
+
+    fun deleteMandiPrice(id: String) {
+        _mandiPrices.value = _mandiPrices.value.filterNot { it.id == id }
+    }
+
+    fun addProduct(prod: Product) {
+        _bazaarProducts.value = listOf(prod) + _bazaarProducts.value
+    }
+
+    fun deleteProduct(id: String) {
+        _bazaarProducts.value = _bazaarProducts.value.filterNot { it.id == id }
+    }
+
+    fun addYojna(scheme: YojnaScheme) {
+        _yojnas.value = listOf(scheme) + _yojnas.value
+    }
+
+    fun deleteYojna(id: String) {
+        _yojnas.value = _yojnas.value.filterNot { it.id == id }
+    }
+
+    fun deleteCommunityPost(id: String) {
+        _communityPosts.value = _communityPosts.value.filterNot { it.id == id }
+    }
+
+    fun updateOrderStatus(orderId: String, newStatus: String) {
+        _orderHistory.value = _orderHistory.value.map { order ->
+            if (order.orderId == orderId) order.copy(paymentStatus = newStatus) else order
+        }
+    }
 }
+

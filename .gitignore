@@ -45,3 +45,17 @@ Thumbs.db
 # NDk / Native build
 .externalNativeBuild
 .cxx
+
+# Security Keystores
+*.jks
+*.keystore
+release-key.jks
+
+# Research Paper Artifacts (Ignored from Git)
+research_paper.md
+research_paper.tex
+AgriIndia_Research_Paper.docx
+*.docx
+*.tex
+generate_docx_paper.py
+
